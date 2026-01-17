@@ -40,6 +40,7 @@ void Application::Render(void)
     int h= 30;
     framebuffer.DrawRect(x, y, w, h, Color::WHITE, 4, true, Color::RED);
     framebuffer.DrawRect(200, 200, w, h, Color::WHITE, 4);
+    // hola
 
 	framebuffer.Render();
 }
