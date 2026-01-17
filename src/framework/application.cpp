@@ -36,10 +36,10 @@ void Application::Render(void)
     framebuffer.Fill(Color::BLACK);
     int x=50;
     int y=50;
-    int w=60;
-    int h= 30;
+    int w=2;
+    int h= 2;
     framebuffer.DrawRect(x, y, w, h, Color::WHITE, 4, true, Color::RED);
-    framebuffer.DrawRect(200, 200, w, h, Color::WHITE, 4);
+    framebuffer.DrawRect(300, 300, w, h, Color::WHITE, 100);
     // hola
 
 	framebuffer.Render();
@@ -57,6 +57,7 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 	// KEY CODES: https://wiki.libsdl.org/SDL2/SDL_Keycode
 	switch(event.keysym.sym) {
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
+        //case SDLK_PLUS:
 	}
 }
 

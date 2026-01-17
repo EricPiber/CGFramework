@@ -342,23 +342,28 @@ void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
     }
 }
 
+bool Image::toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth) {
+    if((x+borderWidth <= i) && (y+borderWidth <= j) && (i < x+w-borderWidth ) && (j < y+h-borderWidth)) {
+        return true;
+    }
+    return false;
+}
+
 void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled, const Color& fillColor) {
-    for(int i=0; i<w; i++) {
-        for(int j=0; j<borderWidth; j++) {
-            SetPixel(x+i, y+j, borderColor);
-            SetPixel(x+i, y+(h-borderWidth)+j, borderColor);
-        }
+    if((w < 2*borderWidth) || (h < 2*borderWidth)) {
+        //printf("Incorrect Parameters\n");
+        w += 2*borderWidth;
+        h += 2*borderWidth;
+        //return;
     }
-    for(int i=borderWidth; i<(h-borderWidth); i++) {
-        for(int j=0; j<borderWidth; j++) {
-            SetPixel(x+j, y+i, borderColor);
-            SetPixel(x+(w-borderWidth)+j, y+i, borderColor);
-        }
-    }
-    if(isFilled) {
-        for(int i=borderWidth; i<(w-borderWidth); i++) {
-            for(int j=borderWidth; j<(h-borderWidth); j++) {
-                SetPixel(x+i, y+j, fillColor);
+    for(int i=x; i<x+w; i++) {
+        for(int j=y; j<y+h; j++) {
+            if(toBeFilled(i, j, x, y, w, h, borderWidth)){
+                if(isFilled) {
+                    SetPixel(i, j, fillColor);
+                }
+            } else {
+                SetPixel(i, j, borderColor);
             }
         }
     }

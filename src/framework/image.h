@@ -80,6 +80,7 @@ public:
 
     // OUR FUNCTIONS
     void DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c);
+    bool toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth);
     void DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled=false, const Color& fillColor=Color());
 
 	// Used to easy code
