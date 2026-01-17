@@ -326,6 +326,44 @@ bool Image::SaveTGA(const char* filename)
 	return true;
 }
 
+// OUR FUNCTIONS
+
+void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
+    float dx = x1-x0;
+    float dy = y1-y0;
+    int d = std::max(abs(dx), abs(dy));
+    
+    Vector2 v0(x0, y0);
+    Vector2 v(dx/d, dy/d);
+    
+    for(int i=0; i<d; i++) {
+        v0 += v;
+        SetPixel(v0.x, v0.y, c);
+    }
+}
+
+void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled, const Color& fillColor) {
+    for(int i=0; i<w; i++) {
+        for(int j=0; j<borderWidth; j++) {
+            SetPixel(x+i, y+j, borderColor);
+            SetPixel(x+i, y+(h-borderWidth)+j, borderColor);
+        }
+    }
+    for(int i=borderWidth; i<(h-borderWidth); i++) {
+        for(int j=0; j<borderWidth; j++) {
+            SetPixel(x+j, y+i, borderColor);
+            SetPixel(x+(w-borderWidth)+j, y+i, borderColor);
+        }
+    }
+    if(isFilled) {
+        for(int i=borderWidth; i<(w-borderWidth); i++) {
+            for(int j=borderWidth; j<(h-borderWidth); j++) {
+                SetPixel(x+i, y+j, fillColor);
+            }
+        }
+    }
+}
+
 #ifndef IGNORE_LAMBDAS
 
 // You can apply and algorithm for two images and store the result in the first one
