@@ -34,12 +34,27 @@ void Application::Render(void)
 	// ...
     
     framebuffer.Fill(Color::BLACK);
-    int x=50;
+    
+    Vector2 p0(100, 100);
+    Vector2 p1(170, 230);
+    Vector2 p2(550, 50);
+    
+    framebuffer.DrawTriangle(p0, p1, p2, Color::RED, true, Color::BLUE);
+
+    Vector2 p3(200, 140);
+    Vector2 p4(500, 700);
+    Vector2 p5(700, 30);
+    
+    framebuffer.DrawTriangle(p3, p4, p5, Color::GREEN, true, Color::BLACK);
+    
+    
+    /*int x=50;
     int y=50;
-    int w=2;
-    int h= 2;
-    framebuffer.DrawRect(x, y, w, h, Color::WHITE, 4, true, Color::RED);
-    framebuffer.DrawRect(300, 300, w, h, Color::WHITE, 100);
+    int w=300;
+    int h=150;
+    //framebuffer.defBorderWidth = 10;
+    framebuffer.DrawRect(x, y, w, h, Color::WHITE, framebuffer.defBorderWidth, true, Color::RED);
+    framebuffer.DrawRect(400, 400, w, h, Color::WHITE, framebuffer.defBorderWidth);*/
     // hola
 
 	framebuffer.Render();
@@ -57,7 +72,8 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 	// KEY CODES: https://wiki.libsdl.org/SDL2/SDL_Keycode
 	switch(event.keysym.sym) {
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-        //case SDLK_PLUS:
+        case SDLK_PLUS: framebuffer.defBorderWidth++; break;
+        case SDLK_MINUS: framebuffer.defBorderWidth--; break;
 	}
 }
 

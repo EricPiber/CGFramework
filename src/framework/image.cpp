@@ -337,8 +337,8 @@ void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
     Vector2 v(dx/d, dy/d);
     
     for(int i=0; i<d; i++) {
-        v0 += v;
         SetPixel(v0.x, v0.y, c);
+        v0 += v;
     }
 }
 
@@ -350,11 +350,8 @@ bool Image::toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth
 }
 
 void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled, const Color& fillColor) {
-    if((w < 2*borderWidth) || (h < 2*borderWidth)) {
-        //printf("Incorrect Parameters\n");
-        w += 2*borderWidth;
-        h += 2*borderWidth;
-        //return;
+    if((w <= 2*borderWidth) || (h <= 2*borderWidth)) {    // Incorrect Parameters
+        borderWidth = std::min(w/2, h/2) - 1;
     }
     for(int i=x; i<x+w; i++) {
         for(int j=y; j<y+h; j++) {
@@ -367,6 +364,86 @@ void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int b
             }
         }
     }
+}
+
+void Image::ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table) {
+    float dx = x1-x0;
+    float dy = y1-y0;
+    int d = std::max(abs(dx), abs(dy));
+    
+    Vector2 v0(x0, y0);
+    Vector2 v(dx/d, dy/d);
+    
+    for(int i=0; i<d; i++) {
+        if(table[v0.y].minx == -1) {
+            table[v0.y].minx = v0.x;
+            table[v0.y].maxx = v0.x;
+        } else if(table[v0.y].minx > v0.x) {
+            table[v0.y].minx = v0.x;
+        } else if(table[v0.y].maxx < v0.x) {
+            table[v0.y].maxx = v0.x;
+        }
+        v0 += v;
+    }
+}
+
+void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor) {
+    std::vector<Cell> table;
+    int tableSize = height;
+    table.resize(tableSize);
+    
+    ScanLineDDA(p0.x, p0.y, p1.x, p1.y, table);
+    ScanLineDDA(p0.x, p0.y, p2.x, p2.y, table);
+    ScanLineDDA(p1.x, p1.y, p2.x, p2.y, table);
+    
+    if(isFilled) {
+        for(int i=0; i<tableSize; i++) {
+            if(table[i].minx != -1) {
+                for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                    SetPixel(j, i, fillColor);
+                }
+            }
+        }
+    }
+    
+    DrawLineDDA(p0.x, p0.y, p1.x, p1.y, borderColor);
+    DrawLineDDA(p0.x, p0.y, p2.x, p2.y, borderColor);
+    DrawLineDDA(p1.x, p1.y, p2.x, p2.y, borderColor);
+        
+    /*
+    
+    if(isFilled) {
+        for(int i=0; i<tableSize; i++) {
+            if(table[i].minx != -1) {
+                for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                    SetPixel(j, i, fillColor);
+                }
+            }
+        }
+        } else {
+            for(int i=0; i<tableSize; i++) {
+                if(table[i].minx != -1) {
+                    for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                        
+                        SetPixel(j, i, fillColor);
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    for(int i=0; i<tableSize; i++) {
+        if(table[i].minx != -1) {
+            if(isFilled) {
+                for(int j=table[i].minx; j<= table[i].maxx; j++) {
+                    SetPixel(j, i, fillColor);
+                }
+            }
+            SetPixel(table[i].minx, i, borderColor);
+            SetPixel(table[i].maxx, i, borderColor);
+        }
+    }*/
 }
 
 #ifndef IGNORE_LAMBDAS
