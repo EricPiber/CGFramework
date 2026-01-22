@@ -52,6 +52,7 @@ public:
 	SDL_Window* window = nullptr;
 	int window_width;
 	int window_height;
+	bool loadTGA = false;
 
 	float time;
 
@@ -115,6 +116,8 @@ public:
 	void Init( void );
 	void Render( void );
 	void Update( float dt );
+	void makeAction(Action action);
+	void makeAnimation();
 
 	// Other methods to control the app
 	void SetWindowSize(int width, int height) {

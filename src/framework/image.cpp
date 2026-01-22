@@ -284,11 +284,11 @@ bool Image::LoadTGA(const char* filename, bool flip_y)
 // Saves the image to a TGA file
 bool Image::SaveTGA(const char* filename)
 {
-	unsigned char TGAheader[12] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	unsigned char TGAheader[12] = { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	std::string fullPath = absResPath(filename);
-	FILE *file = fopen(fullPath.c_str(), "wb");
-	if ( file == NULL )
+	FILE* file = fopen(fullPath.c_str(), "wb");
+	if (file == NULL)
 	{
 		std::cerr << "--- Failed to save file: " << fullPath.c_str() << std::endl;
 		return false;
@@ -305,8 +305,16 @@ bool Image::SaveTGA(const char* filename)
 	fwrite(header, 1, 6, file);
 
 	// Convert pixels to unsigned char
-	unsigned char* bytes = new unsigned char[width*height*3];
-	for(unsigned int y = 0; y < height; ++y)
+	unsigned char* bytes = new unsigned char[width * height * 3];
+	for (unsigned int y = 0; y < 50; ++y) {
+		for (unsigned int x = 0; x < width; ++x) {
+			unsigned int pos = (y * width + x) * 3;
+			bytes[pos + 2] = 0;
+			bytes[pos + 1] = 0;
+			bytes[pos] = 0;
+		}
+	}
+	for(unsigned int y = 50; y < height; ++y)
 		for(unsigned int x = 0; x < width; ++x)
 		{
 			Color c = pixels[y*width+x];

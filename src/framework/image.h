@@ -36,6 +36,7 @@ public:
 	unsigned int height;
     
     unsigned int defBorderWidth = 1;
+	bool isFilled = false;
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel
 
@@ -90,7 +91,7 @@ public:
     // OUR FUNCTIONS
     void DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c);
     bool toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth);
-    void DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled=false, const Color& fillColor=Color());
+    void DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled, const Color& fillColor=Color());
     void ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table);
     void DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor);
     void DrawImage(const Image& image, int x, int y);
