@@ -439,9 +439,9 @@ void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2
         }
     }
     
-    /*DrawLineDDA(p0.x, p0.y, p1.x, p1.y, borderColor);
-    DrawLineDDA(p0.x, p0.y, p2.x, p2.y, borderColor);
-    DrawLineDDA(p1.x, p1.y, p2.x, p2.y, borderColor);*/
+    DrawLineDDA(use0->x, use0->y, use1->x, use1->y, borderColor);
+    DrawLineDDA(use0->x, use0->y, use2->x, use2->y, borderColor);
+    DrawLineDDA(use1->x, use1->y, use2->x, use2->y, borderColor);
 }
 
 void Image::DrawImage(const Image& image, int x, int y) {
