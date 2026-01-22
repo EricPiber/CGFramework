@@ -128,13 +128,53 @@ void Application::makeAction(Action action) {
         case SAVE:
             framebuffer.SaveTGA("output.tga");
             break;
-        default:
+        case PENCIL:
+            currTool = PENCIL;
             break;
+        case ERASER:
+            currTool = ERASER;
+            break;
+        case LINE:
+            currTool = LINE;
+            break;
+        case RECTANGLE:
+            currTool = RECTANGLE;
+            break;
+        case TRIANGLE:
+            currTool = TRIANGLE;
+            break;
+        case BLACK:
+            framebuffer.defColor = Color::BLACK;
+            break;
+        case WHITE:
+            framebuffer.defColor = Color::WHITE;
+            break;
+        case RED:
+            framebuffer.defColor = Color::RED;
+            break;
+        case GREEN:
+            framebuffer.defColor = Color::GREEN;
+            break;
+        case BLUE:
+            framebuffer.defColor = Color::BLUE;
+            break;
+        case YELLOW:
+            framebuffer.defColor = Color::YELLOW;
+            break;
+        case CYAN:
+            framebuffer.defColor = Color::CYAN;
+            break;
+        case PINK:
+            framebuffer.defColor = Color::PURPLE;
+            break;
+        
     }
 }
 
 void Application::makeAnimation() {
-    framebuffer.SaveTGA("temp.tga");
+    if(!starfield_initialized) {
+        framebuffer.SaveTGA("paint.tga");
+    }
     starfield.Init(framebuffer.width, framebuffer.height);
 	makeAction(CLEAR);
     starfield_initialized = true;
@@ -144,7 +184,7 @@ void Application::paint() {
     makeAction(CLEAR);
 	starfield_initialized = false;
 	loadTGA = true;
-    framebuffer.LoadTGA("temp.tga", true);
+    framebuffer.LoadTGA("paint.tga", true);
 }
 
 //keyboard press event 
@@ -206,6 +246,30 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
             *orig_mouse = mouse_position;
             framebuffer.SaveTGA("temp.tga");
         }
+        else if (currTool == TRIANGLE) {
+            if(mouse_position.y > 50) {
+                switch(triCounter) {
+                    case 0:
+                        *p0 = mouse_position;
+                        framebuffer.SaveTGA("temp.tga");
+                        triCounter = 1;
+                        break;
+                    case 1:
+                        *p1 = mouse_position;
+                        triCounter = 2;
+                        break;
+                    case 2:
+                        loadTGA = true;
+                        framebuffer.LoadTGA("temp.tga", true);
+                        *p2 = mouse_position;
+                        framebuffer.DrawTriangle(*p0, *p1, *p2, framebuffer.defColor, framebuffer.isFilled, framebuffer.defColor);
+                        triCounter = 0;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
 	}
 }
 
@@ -221,7 +285,7 @@ void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
             loadTGA = true;
             framebuffer.LoadTGA("temp.tga", true);
             int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
-            framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled);
+            framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
             delete data;
         }
 	}
@@ -321,66 +385,4 @@ void Button::DrawButton(Image& framebuffer) {
     if(image) {
         framebuffer.DrawImage(*image, use->x, use->y);
     }
-}
-
-void Application::makeAction(Action action) {
-    switch(action) {
-        case CLEAR:
-            framebuffer.Fill(Color::BLACK);
-            framebuffer.SaveTGA("clear.tga");
-            loadTGA = true;
-            framebuffer.LoadTGA("clear.tga");
-            break;
-        case LOAD:
-            loadTGA = true;
-            framebuffer.LoadTGA("output.tga", true);
-            break;
-        case SAVE:
-            framebuffer.SaveTGA("output.tga");
-            break;
-        case PENCIL:
-            currTool = PENCIL;
-            break;
-        case ERASER:
-            currTool = ERASER;
-            break;
-        case LINE:
-            currTool = LINE;
-            break;
-        case RECTANGLE:
-            currTool = RECTANGLE;
-            break;
-        case TRIANGLE:
-            currTool = TRIANGLE;
-            break;
-        case BLACK:
-            
-            break;
-        case WHITE:
-            
-            break;
-        case RED:
-            
-            break;
-        case GREEN:
-            
-            break;
-        case BLUE:
-            
-            break;
-        case YELLOW:
-            
-            break;
-        case CYAN:
-            
-            break;
-        case PINK:
-            
-            break;
-        
-    }
-}
-
-void Application::makeAnimation() {
-    // ...
 }

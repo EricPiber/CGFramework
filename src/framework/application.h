@@ -1,4 +1,4 @@
-﻿/*  
+/*  
 	+ This class encapsulates the application, is in charge of creating the data, getting the user input, process the update and render.
 */
 
@@ -242,6 +242,10 @@ public:
     Vector2 *prev_mouse = new Vector2();
     Vector2 *orig_mouse = new Vector2();
     int *prev_data = NULL;
+    int triCounter = 0;
+    Vector2 *p0 = new Vector2();
+    Vector2 *p1 = new Vector2();
+    Vector2 *p2 = new Vector2();
 
 	void OnKeyPressed(SDL_KeyboardEvent event);
 	void OnMouseButtonDown(SDL_MouseButtonEvent event);
