@@ -232,12 +232,16 @@ public:
     bool starfield_initialized = false;
 
 	float time;
+    float prev_time = 0;
 
 	// Input
 	const Uint8* keystate;
 	int mouse_state; // Tells which buttons are pressed
 	Vector2 mouse_position; // Last mouse position
 	Vector2 mouse_delta; // Mouse movement in the last frame
+    Vector2 *prev_mouse = new Vector2();
+    Vector2 *orig_mouse = new Vector2();
+    int *prev_data = NULL;
 
 	void OnKeyPressed(SDL_KeyboardEvent event);
 	void OnMouseButtonDown(SDL_MouseButtonEvent event);

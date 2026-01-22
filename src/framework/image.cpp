@@ -349,7 +349,11 @@ void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
     Vector2 v(dx/d, dy/d);
     
     for(int i=0; i<d; i++) {
-        SetPixel(v0.x, v0.y, c);
+        for(int j=-defBorderWidth; j<=defBorderWidth;j++){
+            for(int k=-defBorderWidth; k<=defBorderWidth;k++) {
+                SetPixel(v0.x+j, v0.y+k, c);
+            }
+        }
         v0 += v;
     }
 }
@@ -483,13 +487,28 @@ Vector2* Image::makeInside(const Vector2 &p) {
     }
 }
 
-void Image::DrawPencil(Vector2 pos) {
-    for(int i=-defBorderWidth; i<defBorderWidth; i++) {
-        SetPixel(pos.x+i, pos.y, defColor);
+int* Image::CompRect(Vector2 v1, Vector2 v2) {
+    int* data = new int[4];
+    Vector2 v3(v1.x, v2.y);
+    Vector2 v4(v2.x, v1.y);
+    Vector2 vs[4] = {v1, v2, v3, v4};
+    Vector2 temp;
+    
+    for(int i=0; i<4; i++) {
+        for(int j=i+1; j<4; j++) {
+            if((vs[j].x<=vs[i].x)&&(vs[j].y<=vs[i].y)) {
+                temp = vs[i];
+                vs[i] = vs[j];
+                vs[j] = temp;
+            }
+        }
     }
-    for(int i=-defBorderWidth; i<defBorderWidth; i++) {
-        SetPixel(pos.x, pos.y+i, defColor);
-    }
+    data[0] = vs[0].x;
+    data[1] = vs[0].y;
+    data[2] = vs[3].x-vs[0].x;
+    data[3] = vs[3].y-vs[0].y;
+    // x, y, width, height
+    return data;
 }
  
 #ifndef IGNORE_LAMBDAS

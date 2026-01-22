@@ -35,7 +35,7 @@ public:
 	unsigned int width;
 	unsigned int height;
     
-    unsigned int defBorderWidth = 3;
+    int defBorderWidth = 2;
     bool isFilled = false;
     Color defColor = Color::WHITE;
     
@@ -98,7 +98,7 @@ public:
     void DrawImage(const Image& image, int x, int y);
     Vector2* makeInside(const Vector2& p);
     void makeInside(int *x, int *y);
-    void DrawPencil(Vector2 pos);
+    int *CompRect(Vector2 v1, Vector2 v2);
 
 	// Used to easy code
 	#ifndef IGNORE_LAMBDAS

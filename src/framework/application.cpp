@@ -173,6 +173,38 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
             makeAction(SAVE);
         } else if (butPencil.IsMouseInside(mouse_position)) {
             makeAction(PENCIL);
+        } else if (butEraser.IsMouseInside(mouse_position)) {
+            makeAction(ERASER);
+        } else if (butLine.IsMouseInside(mouse_position)) {
+            makeAction(LINE);
+        } else if (butRectangle.IsMouseInside(mouse_position)) {
+            makeAction(RECTANGLE);
+        } else if (butTriangle.IsMouseInside(mouse_position)) {
+            makeAction(TRIANGLE);
+        } else if (butBlack.IsMouseInside(mouse_position)) {
+            makeAction(BLACK);
+        } else if (butWhite.IsMouseInside(mouse_position)) {
+            makeAction(WHITE);
+        } else if (butRed.IsMouseInside(mouse_position)) {
+            makeAction(RED);
+        } else if (butGreen.IsMouseInside(mouse_position)) {
+            makeAction(GREEN);
+        } else if (butBlue.IsMouseInside(mouse_position)) {
+            makeAction(BLUE);
+        } else if (butYellow.IsMouseInside(mouse_position)) {
+            makeAction(YELLOW);
+        } else if (butCyan.IsMouseInside(mouse_position)) {
+            makeAction(CYAN);
+        } else if (butPink.IsMouseInside(mouse_position)) {
+            makeAction(PINK);
+        }
+        if (currTool == LINE) {
+            *orig_mouse = mouse_position;
+            framebuffer.SaveTGA("temp.tga");
+        }
+        else if (currTool == RECTANGLE) {
+            *orig_mouse = mouse_position;
+            framebuffer.SaveTGA("temp.tga");
         }
 	}
 }
@@ -180,7 +212,18 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
 void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
 {
 	if (event.button == SDL_BUTTON_LEFT) {
-
+        if(currTool == LINE) {
+            loadTGA = true;
+            framebuffer.LoadTGA("temp.tga", true);
+            framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+        }
+        else if(currTool == RECTANGLE) {
+            loadTGA = true;
+            framebuffer.LoadTGA("temp.tga", true);
+            int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
+            framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled);
+            delete data;
+        }
 	}
 }
 
@@ -189,9 +232,48 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
     if(currTool == PENCIL) {
         if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
             if(mouse_position.y > 50) {
-                std::cout << "pencil" << std::endl;
-                framebuffer.DrawRect(mouse_position.x, mouse_position.y, 10, 10, Color::WHITE, 1, false);
-                framebuffer.DrawPencil(mouse_position);
+                if(prev_mouse->x > 0) {
+                    if((time-prev_time)<0.05) {
+                        framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                    }
+                }
+                *prev_mouse = mouse_position;
+                prev_time = time;
+            }
+        }
+    }
+    else if(currTool == ERASER) {
+        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            if(mouse_position.y > 50) {
+                if(prev_mouse->x > 0) {
+                    if((time-prev_time)<0.05) {
+                        framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, Color::BLACK);
+                    }
+                }
+                *prev_mouse = mouse_position;
+                prev_time = time;
+            }
+        }
+    } else if(currTool == LINE) {
+        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            if(mouse_position.y > 50) {
+                if(prev_mouse->x > 0) {
+                    framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, prev_mouse->x, prev_mouse->y, Color::BLACK);
+                    framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                }
+                *prev_mouse = mouse_position;
+            }
+        }
+    } else if(currTool == RECTANGLE) {
+        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            if(mouse_position.y > 50) {
+                int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
+                if(prev_data != NULL) {
+                    framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled);
+                    framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled);
+                    delete prev_data;
+                }
+                prev_data = data;
             }
         }
     }
@@ -260,16 +342,16 @@ void Application::makeAction(Action action) {
             currTool = PENCIL;
             break;
         case ERASER:
-            
+            currTool = ERASER;
             break;
         case LINE:
-            
+            currTool = LINE;
             break;
         case RECTANGLE:
-            
+            currTool = RECTANGLE;
             break;
         case TRIANGLE:
-            
+            currTool = TRIANGLE;
             break;
         case BLACK:
             
