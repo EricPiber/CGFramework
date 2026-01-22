@@ -65,6 +65,9 @@ void Application::Init(void)
     butCyan = Button(cyan, 570, 10, CYAN);
     butPink = Button(pink, 610, 10, PINK);
     
+    
+    framebuffer.Fill(Color::BLACK);
+    
 }
 
 // Render one frame
@@ -74,70 +77,34 @@ void Application::Render(void)
     
     
     //framebuffer.Resize(window_width, window_height);
-
     if (!loadTGA) {
-        framebuffer.Fill(Color::BLACK);
-        Vector2 p0(100, 100);
-        Vector2 p1(170, 230);
-        Vector2 p2(550, 1);
-
-        framebuffer.DrawTriangle(p0, p1, p2, Color::RED, true, Color::BLUE);
-
-        Vector2 p3(200, 140);
-        Vector2 p4(500, 700);
-        Vector2 p5(700, 100);
-
-        framebuffer.DrawTriangle(p3, p4, p5, Color::GREEN, true, Color::BLACK);
     }
+    
     framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY); // Menu bar
     butClear.DrawButton(framebuffer);
     butLoad.DrawButton(framebuffer);
-    butSave.DrawButton(framebuffer);
-    butPencil.DrawButton(framebuffer);
-    butEraser.DrawButton(framebuffer);
-    butLine.DrawButton(framebuffer);
-    butRectangle.DrawButton(framebuffer);
-    butTriangle.DrawButton(framebuffer);
-    butBlack.DrawButton(framebuffer);
-    butWhite.DrawButton(framebuffer);
-    butRed.DrawButton(framebuffer);
-    butGreen.DrawButton(framebuffer);
-    butBlue.DrawButton(framebuffer);
-    butYellow.DrawButton(framebuffer);
-    butCyan.DrawButton(framebuffer);
+	butSave.DrawButton(framebuffer);
+	butPencil.DrawButton(framebuffer);
+	butEraser.DrawButton(framebuffer);
+	butLine.DrawButton(framebuffer);
+	butRectangle.DrawButton(framebuffer);
+	butTriangle.DrawButton(framebuffer);
+	butBlack.DrawButton(framebuffer);
+	butWhite.DrawButton(framebuffer);
+	butRed.DrawButton(framebuffer);
+	butGreen.DrawButton(framebuffer);
+	butBlue.DrawButton(framebuffer);
+	butYellow.DrawButton(framebuffer);
+	butCyan.DrawButton(framebuffer);
     butPink.DrawButton(framebuffer);
-
-	framebuffer.Render();
+    
+    framebuffer.Render();
 }
 
 // Called after render
 void Application::Update(float seconds_elapsed)
 {
 
-}
-
-void Application::makeAction(Action action) {
-    switch(action) {
-        case CLEAR:
-            framebuffer.Fill(Color::BLACK);
-            framebuffer.SaveTGA("clear.tga");
-            loadTGA = true;
-            framebuffer.LoadTGA("clear.tga");
-            break;
-        case LOAD:
-            loadTGA = true;
-            framebuffer.LoadTGA("output.tga", true);
-            break;
-        case SAVE:
-            framebuffer.SaveTGA("output.tga");
-            break;
-        default:
-            break;
-    }
-}
-
-void Application::makeAnimation() {
-    // ...
 }
 
 //keyboard press event 
@@ -150,8 +117,8 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
         case SDLK_MINUS: framebuffer.defBorderWidth--; break;
         case SDLK_1: makeAction(PENCIL); break;
         case SDLK_2: makeAnimation(); break;
-		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break;
-		default: break;
+        case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break;
+        default: break;
 	}
 }
 
@@ -164,7 +131,9 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
             makeAction(LOAD);
         } else if (butSave.IsMouseInside(mouse_position)) {
             makeAction(SAVE);
-		}
+        } else if (butPencil.IsMouseInside(mouse_position)) {
+            makeAction(PENCIL);
+        }
 	}
 }
 
@@ -177,7 +146,15 @@ void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
 
 void Application::OnMouseMove(SDL_MouseButtonEvent event)
 {
-	
+    if(currTool == PENCIL) {
+        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            if(mouse_position.y > 50) {
+                std::cout << "pencil" << std::endl;
+                framebuffer.DrawRect(mouse_position.x, mouse_position.y, 10, 10, Color::WHITE, 1, false);
+                framebuffer.DrawPencil(mouse_position);
+            }
+        }
+    }
 }
 
 void Application::OnWheel(SDL_MouseWheelEvent event)
@@ -222,4 +199,66 @@ void Button::DrawButton(Image& framebuffer) {
     if(image) {
         framebuffer.DrawImage(*image, use->x, use->y);
     }
+}
+
+void Application::makeAction(Action action) {
+    switch(action) {
+        case CLEAR:
+            framebuffer.Fill(Color::BLACK);
+            framebuffer.SaveTGA("clear.tga");
+            loadTGA = true;
+            framebuffer.LoadTGA("clear.tga");
+            break;
+        case LOAD:
+            loadTGA = true;
+            framebuffer.LoadTGA("output.tga", true);
+            break;
+        case SAVE:
+            framebuffer.SaveTGA("output.tga");
+            break;
+        case PENCIL:
+            currTool = PENCIL;
+            break;
+        case ERASER:
+            
+            break;
+        case LINE:
+            
+            break;
+        case RECTANGLE:
+            
+            break;
+        case TRIANGLE:
+            
+            break;
+        case BLACK:
+            
+            break;
+        case WHITE:
+            
+            break;
+        case RED:
+            
+            break;
+        case GREEN:
+            
+            break;
+        case BLUE:
+            
+            break;
+        case YELLOW:
+            
+            break;
+        case CYAN:
+            
+            break;
+        case PINK:
+            
+            break;
+        
+    }
+}
+
+void Application::makeAnimation() {
+    // ...
 }

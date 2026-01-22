@@ -35,8 +35,9 @@ public:
 	unsigned int width;
 	unsigned int height;
     
-    unsigned int defBorderWidth = 1;
-	bool isFilled = false;
+    unsigned int defBorderWidth = 3;
+    bool isFilled = false;
+    Color defColor = Color::WHITE;
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel
 
@@ -97,6 +98,7 @@ public:
     void DrawImage(const Image& image, int x, int y);
     Vector2* makeInside(const Vector2& p);
     void makeInside(int *x, int *y);
+    void DrawPencil(Vector2 pos);
 
 	// Used to easy code
 	#ifndef IGNORE_LAMBDAS
