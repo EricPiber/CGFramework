@@ -48,7 +48,22 @@ void Application::Init(void)
             std::cout << "Some Image was not found!" << std::endl;
         }
     }
-    butClear = Button(clear, 50, 10, CLEAR);
+    butClear = Button(clear, 10, 10, CLEAR);
+    butLoad = Button(load, 50, 10, LOAD);
+    butSave = Button(save, 90, 10, SAVE);
+    butPencil = Button(pencil, 130, 10, PENCIL);
+    butEraser = Button(eraser, 170, 10, ERASER);
+    butLine = Button(line, 210, 10, LINE);
+    butRectangle = Button(rectangle, 250, 10, RECTANGLE);
+    butTriangle = Button(triangle, 290, 10, TRIANGLE);
+    butBlack = Button(black, 330, 10, BLACK);
+    butWhite = Button(white, 370, 10, WHITE);
+    butRed = Button(red, 410, 10, RED);
+    butGreen = Button(green, 450, 10, GREEN);
+    butBlue = Button(blue, 490, 10, BLUE);
+    butYellow = Button(yellow, 530, 10, YELLOW);
+    butCyan = Button(cyan, 570, 10, CYAN);
+    butPink = Button(pink, 610, 10, PINK);
     
 }
 
@@ -59,37 +74,38 @@ void Application::Render(void)
     
     
     
-    framebuffer.Fill(Color::BLACK);
-    
+    framebuffer.Fill(Color::BLACK);    
     
     
     Vector2 p0(100, 100);
     Vector2 p1(170, 230);
-    Vector2 p2(550, 50);
+    Vector2 p2(550, 1);
     
     framebuffer.DrawTriangle(p0, p1, p2, Color::RED, true, Color::BLUE);
 
     Vector2 p3(200, 140);
     Vector2 p4(500, 700);
-    Vector2 p5(700, 30);
+    Vector2 p5(700, 100);
     
     framebuffer.DrawTriangle(p3, p4, p5, Color::GREEN, true, Color::BLACK);
     
-    
-    framebuffer.DrawImage(pencil, 10, 10);
-    
+    framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY); // Menu bar
     butClear.DrawButton(framebuffer);
-    
-    
-    
-    /*int x=50;
-    int y=50;
-    int w=300;
-    int h=150;
-    //framebuffer.defBorderWidth = 10;
-    framebuffer.DrawRect(x, y, w, h, Color::WHITE, framebuffer.defBorderWidth, true, Color::RED);
-    framebuffer.DrawRect(400, 400, w, h, Color::WHITE, framebuffer.defBorderWidth);*/
-    // hola
+    butLoad.DrawButton(framebuffer);
+	butSave.DrawButton(framebuffer);
+	butPencil.DrawButton(framebuffer);
+	butEraser.DrawButton(framebuffer);
+	butLine.DrawButton(framebuffer);
+	butRectangle.DrawButton(framebuffer);
+	butTriangle.DrawButton(framebuffer);
+	butBlack.DrawButton(framebuffer);
+	butWhite.DrawButton(framebuffer);
+	butRed.DrawButton(framebuffer);
+	butGreen.DrawButton(framebuffer);
+	butBlue.DrawButton(framebuffer);
+	butYellow.DrawButton(framebuffer);
+	butCyan.DrawButton(framebuffer);
+    butPink.DrawButton(framebuffer);
 
 	framebuffer.Render();
 }
@@ -163,6 +179,7 @@ bool Button::IsMouseInside(Vector2 mousePosition) {
 
 void Button::DrawButton(Image& framebuffer) {
     if(image) {
+
         framebuffer.DrawImage(*image, x, y);
     }
 }

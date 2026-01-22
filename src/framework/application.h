@@ -91,6 +91,21 @@ public:
     
 
     Button butClear;
+	Button butLoad;
+	Button butSave;
+	Button butPencil;
+	Button butEraser;
+	Button butLine;
+	Button butRectangle;
+	Button butTriangle;
+	Button butBlack;
+	Button butWhite;
+	Button butRed;
+	Button butGreen;
+	Button butBlue;
+	Button butYellow;
+	Button butCyan;
+	Button butPink;
 
     
 	// Constructor and main methods
