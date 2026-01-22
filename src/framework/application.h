@@ -8,6 +8,41 @@
 #include "framework.h"
 #include "image.h"
 
+enum Action {
+    CLEAR,
+    LOAD,
+    SAVE,
+    PENCIL,
+    ERASER,
+    LINE,
+    RECTANGLE,
+    TRIANGLE,
+    BLACK,
+    WHITE,
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    CYAN,
+    PINK
+};
+
+class Button
+{
+public:
+    Image* image;
+    int x, y;
+    Action type;
+    
+    // CONSTRUCTOR
+    Button();
+    Button(Image &image, int x, int y, Action type);
+    
+    // MAIN FUNCTIONS
+    bool IsMouseInside(Vector2 mousePosition);
+    void DrawButton(Image& framebuffer);
+};
+
 class Application
 {
 public:
@@ -35,7 +70,29 @@ public:
 
 	// CPU Global framebuffer
 	Image framebuffer;
+    
+    // OUR IMAGES
+    Image clear;
+    Image load;
+    Image save;
+    Image pencil;
+    Image eraser;
+    Image line;
+    Image rectangle;
+    Image triangle;
+    Image black;
+    Image white;
+    Image red;
+    Image green;
+    Image blue;
+    Image yellow;
+    Image cyan;
+    Image pink;
+    
 
+    Button butClear;
+
+    
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);
 	~Application();

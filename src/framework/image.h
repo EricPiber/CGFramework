@@ -81,16 +81,19 @@ public:
 	bool LoadTGA(const char* filename, bool flip_y = false);
 	bool SaveTGA(const char* filename);
 
-    // OUR FUNCTIONS AND STRUCTS
-    void DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c);
-    bool toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth);
-    void DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled=false, const Color& fillColor=Color());
+    // OUR STRUCTS
     struct Cell {
         int minx = -1;
         int maxx = -1;
     };
+    
+    // OUR FUNCTIONS
+    void DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c);
+    bool toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth);
+    void DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled=false, const Color& fillColor=Color());
     void ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table);
     void DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor);
+    void DrawImage(const Image& image, int x, int y);
 
 	// Used to easy code
 	#ifndef IGNORE_LAMBDAS

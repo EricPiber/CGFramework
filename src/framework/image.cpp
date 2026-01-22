@@ -409,41 +409,14 @@ void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2
     DrawLineDDA(p0.x, p0.y, p1.x, p1.y, borderColor);
     DrawLineDDA(p0.x, p0.y, p2.x, p2.y, borderColor);
     DrawLineDDA(p1.x, p1.y, p2.x, p2.y, borderColor);
-        
-    /*
-    
-    if(isFilled) {
-        for(int i=0; i<tableSize; i++) {
-            if(table[i].minx != -1) {
-                for(int j=table[i].minx; j<=table[i].maxx; j++) {
-                    SetPixel(j, i, fillColor);
-                }
-            }
-        }
-        } else {
-            for(int i=0; i<tableSize; i++) {
-                if(table[i].minx != -1) {
-                    for(int j=table[i].minx; j<=table[i].maxx; j++) {
-                        
-                        SetPixel(j, i, fillColor);
-                    }
-                }
-            }
+}
+
+void Image::DrawImage(const Image& image, int x, int y) {
+    for(int i=0; i<image.width; i++) {
+        for(int j=0; j<image.height; j++) {
+            SetPixel(x+i, y+j, image.GetPixel(i, j));
         }
     }
-    
-    
-    for(int i=0; i<tableSize; i++) {
-        if(table[i].minx != -1) {
-            if(isFilled) {
-                for(int j=table[i].minx; j<= table[i].maxx; j++) {
-                    SetPixel(j, i, fillColor);
-                }
-            }
-            SetPixel(table[i].minx, i, borderColor);
-            SetPixel(table[i].maxx, i, borderColor);
-        }
-    }*/
 }
 
 #ifndef IGNORE_LAMBDAS
