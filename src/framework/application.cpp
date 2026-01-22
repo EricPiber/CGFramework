@@ -75,6 +75,10 @@ void Application::Render(void)
     
     //framebuffer.Resize(window_width, window_height);
 
+    if (starfield_initialized) {
+        starfield.Render(&framebuffer);
+    }
+
     if (!loadTGA) {
         framebuffer.Fill(Color::BLACK);
         Vector2 p0(100, 100);
@@ -113,7 +117,8 @@ void Application::Render(void)
 // Called after render
 void Application::Update(float seconds_elapsed)
 {
-
+    if (starfield_initialized)
+        starfield.Update(seconds_elapsed);
 }
 
 void Application::makeAction(Action action) {
@@ -137,7 +142,17 @@ void Application::makeAction(Action action) {
 }
 
 void Application::makeAnimation() {
-    // ...
+    framebuffer.SaveTGA("temp.tga");
+    starfield.Init(framebuffer.width, framebuffer.height);
+	makeAction(CLEAR);
+    starfield_initialized = true;
+}
+
+void Application::paint() {
+    makeAction(CLEAR);
+	starfield_initialized = false;
+	loadTGA = true;
+    framebuffer.LoadTGA("temp.tga", true);
 }
 
 //keyboard press event 
@@ -148,7 +163,7 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
         case SDLK_PLUS: framebuffer.defBorderWidth++; break;
         case SDLK_MINUS: framebuffer.defBorderWidth--; break;
-        case SDLK_1: makeAction(PENCIL); break;
+        case SDLK_1: paint(); break;
         case SDLK_2: makeAnimation(); break;
 		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break;
 		default: break;
