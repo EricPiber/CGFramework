@@ -31,7 +31,7 @@ class Button
 {
 public:
     Image* image;
-    int x, y;
+    const Vector2 *pos;
     Action type;
     
     // CONSTRUCTOR

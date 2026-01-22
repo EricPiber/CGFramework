@@ -388,27 +388,52 @@ void Image::ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table
 }
 
 void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor) {
+    Vector2* in0 = makeInside(p0);
+    Vector2* in1 = makeInside(p1);
+    Vector2* in2 = makeInside(p2);
+    const Vector2* use0;
+    const Vector2* use1;
+    const Vector2* use2;
+    
+    if(in0 == NULL) {
+        use0 = &p0;
+    } else {
+        use0 = in0;
+    }
+    if(in1 == NULL) {
+        use1 = &p1;
+    } else {
+        use1 = in1;
+    }
+    if(in2 == NULL) {
+        use2 = &p2;
+    } else {
+        use2 = in2;
+    }
+    
     std::vector<Cell> table;
     int tableSize = height;
     table.resize(tableSize);
     
-    ScanLineDDA(p0.x, p0.y, p1.x, p1.y, table);
-    ScanLineDDA(p0.x, p0.y, p2.x, p2.y, table);
-    ScanLineDDA(p1.x, p1.y, p2.x, p2.y, table);
+    ScanLineDDA(use0->x, use0->y, use1->x, use1->y, table);
+    ScanLineDDA(use0->x, use0->y, use2->x, use2->y, table);
+    ScanLineDDA(use1->x, use1->y, use2->x, use2->y, table);
     
     if(isFilled) {
         for(int i=0; i<tableSize; i++) {
             if(table[i].minx != -1) {
                 for(int j=table[i].minx; j<=table[i].maxx; j++) {
-                    SetPixel(j, i, fillColor);
+                    if((0 < j) && (j < width) && (0 < i) && (i < height)) {
+                        SetPixel(j, i, fillColor);
+                    }
                 }
             }
         }
     }
     
-    DrawLineDDA(p0.x, p0.y, p1.x, p1.y, borderColor);
+    /*DrawLineDDA(p0.x, p0.y, p1.x, p1.y, borderColor);
     DrawLineDDA(p0.x, p0.y, p2.x, p2.y, borderColor);
-    DrawLineDDA(p1.x, p1.y, p2.x, p2.y, borderColor);
+    DrawLineDDA(p1.x, p1.y, p2.x, p2.y, borderColor);*/
 }
 
 void Image::DrawImage(const Image& image, int x, int y) {
@@ -419,6 +444,38 @@ void Image::DrawImage(const Image& image, int x, int y) {
     }
 }
 
+Vector2* Image::makeInside(const Vector2 &p) {
+    Vector2 *in = new Vector2(p.x, p.y);
+    bool modified = false;
+    if(p.x < 0) {
+        in->x = 0;
+        modified = true;
+    }
+    if(p.x > width) {
+        in->x = width-1;
+        modified = true;
+    }
+    if(p.y < 0) {
+        in->y = 0;
+        modified = true;
+    }
+    if(p.y > height) {
+        in->y = height-1;
+        modified = true;
+    }
+    if(!modified){
+        free(in);
+        return NULL;
+    } else {
+        return in;
+    }
+}
+/*
+void Image::makeInside(int *x, int *y) {
+    
+}
+*/
+ 
 #ifndef IGNORE_LAMBDAS
 
 // You can apply and algorithm for two images and store the result in the first one

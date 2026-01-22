@@ -73,8 +73,8 @@ void Application::Render(void)
 	// ...
     
     
-    
-    framebuffer.Fill(Color::BLACK);    
+    //framebuffer.Resize(window_width, window_height);
+    framebuffer.Fill(Color::BLACK);
     
     
     Vector2 p0(100, 100);
@@ -160,26 +160,32 @@ void Application::OnFileChanged(const char* filename)
 
 Button::Button() {
     image = NULL;
-    x = 0; y = 0;
+    pos = NULL;
 }
 
 Button::Button(Image &image, int x, int y, Action type) {
     this->image = &image;
-    this->x = x;
-    this->y = y;
+    pos = new Vector2(x, y);
     this->type = type;
 }
 
 bool Button::IsMouseInside(Vector2 mousePosition) {
-    if((x<=mousePosition.x) && (mousePosition.x<=x+image->width) && (y<=mousePosition.y) && (mousePosition.y<=y+image->height)) {
+    if((pos->x<=mousePosition.x) && (mousePosition.x<=pos->x+image->width) && (pos->y<=mousePosition.y) && (mousePosition.y<=pos->y+image->height)) {
         return true;
     }
     return false;
 }
 
 void Button::DrawButton(Image& framebuffer) {
+    Vector2* in = framebuffer.makeInside(*pos);
+    const Vector2* use;
+    if(in == NULL) {
+        use = pos;
+    } else {
+        use = in;
+    }
+    
     if(image) {
-
-        framebuffer.DrawImage(*image, x, y);
+        framebuffer.DrawImage(*image, use->x, use->y);
     }
 }
