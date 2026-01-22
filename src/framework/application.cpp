@@ -82,8 +82,10 @@ void Application::Render(void)
         starfield.Render(&framebuffer);
     }
 
+    /*
     if (!loadTGA) {
     }
+    */
     
     framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY); // Menu bar
     butClear.DrawButton(framebuffer);
@@ -333,11 +335,34 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             if(mouse_position.y > 50) {
                 int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
                 if(prev_data != NULL) {
-                    framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled);
-                    framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled);
+                    framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled, Color::BLACK);
+                    framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
                     delete prev_data;
                 }
                 prev_data = data;
+            }
+        }
+    } else if(currTool == TRIANGLE) {
+        if(mouse_position.y > 50) {
+            switch(triCounter) {
+                case 0:
+                    break;
+                case 1:
+                    if(prev_mouse->x > 0) {
+                        framebuffer.DrawLineDDA(p0->x, p0->y, prev_mouse->x, prev_mouse->y, Color::BLACK);
+                        framebuffer.DrawLineDDA(p0->x, p0->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                    }
+                    *prev_mouse = mouse_position;
+                    break;
+                case 2:
+                    if(prev_mouse->x > 0) {
+                        framebuffer.DrawTriangle(*p0, *p1, *prev_mouse, Color::BLACK, framebuffer.isFilled, Color::BLACK);
+                        framebuffer.DrawTriangle(*p0, *p1, mouse_position, framebuffer.defColor, framebuffer.isFilled, framebuffer.defColor);
+                    }
+                    *prev_mouse = mouse_position;
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -385,4 +410,153 @@ void Button::DrawButton(Image& framebuffer) {
     if(image) {
         framebuffer.DrawImage(*image, use->x, use->y);
     }
+}
+
+void ParticleSystem::Init(int w, int h) {
+    width = w; height = h;
+    for (int i = 0; i < MAX_PARTICLES; ++i)
+        Respawn(particles[i], true);
+}
+
+void ParticleSystem::Render(Image* framebuffer) {
+    // Draw as points
+    for (int i = 0; i < MAX_PARTICLES; ++i) {
+        Particle& p = particles[i];
+        if (p.inactive) continue;
+
+        int x = (int)p.position.x;
+        int y = (int)p.position.y;
+
+        // bounds check
+        if (x < 0 || x >= (int)framebuffer->width || y < 0 || y >= (int)framebuffer->height)
+            continue;
+
+        if (p.colorful == 1 || p.colorful == 7) {
+            framebuffer->SetPixel((unsigned)x, (unsigned)y, p.color);
+        } else {
+            for (int i = -4; i <= 4; i++) {
+                for (int j = -4; j <= 4; j++) {
+                    framebuffer->SetPixel(x + i, y + j, p.color);
+                }
+            }
+        }
+
+    }
+}
+
+void ParticleSystem::Update(float dt) {
+    for (int i = 0; i < MAX_PARTICLES; ++i) {
+        Particle& p = particles[i];
+        if (p.inactive) {
+            p.colorful = rand() % 10;
+            Respawn(p, false);
+            continue;
+        }
+
+        p.ttl -= dt;
+        if (p.ttl <= 0.0f) {
+            p.inactive = true;
+            continue;
+        }
+
+        // accelerate along direction
+        // (we treat velocity as "current velocity" and add scaled direction each frame)
+        Vector2 dir = p.velocity;
+        float len = dir.length();
+        if (len > 0.0001f) dir = dir / len;
+
+        p.velocity += dir * (p.acceleration * dt);
+        p.position += p.velocity * dt;
+
+        // kill if outside (with some margin)
+        if (p.position.x < -10 || p.position.x > width + 10 ||
+            p.position.y < -10 || p.position.y > height + 10) {
+            p.inactive = true;
+            continue;
+        }
+    }
+}
+
+void ParticleSystem::OnResize(int w, int h) {
+    width = w; height = h;
+}
+
+float ParticleSystem::frand01() {
+    return (float)rand() / (float)RAND_MAX;
+}
+
+void ParticleSystem::Respawn(Particle& p, bool initial)
+{
+    float values[20] = {
+        100.0f, 110.0f, 120.0f, 130.0f, 140.0f,
+        150.0f, 160.0f, 170.0f, 180.0f, 190.0f,
+        200.0f, 210.0f, 220.0f, 230.0f, 240.0f,
+        250.0f, 260.0f, 270.0f, 280.0f, 300.0f
+    };
+
+    float radius = values[rand() % 20];
+    if (p.color.r == 0 && p.color.g == 0 && p.color.b == 0) {
+        radius = 100.0f;
+    }
+
+    // random angle in [0, 2π)
+    float ang = frand01() * (float)(PI * 2.0f);
+
+    // center of circle
+    Vector2 center(width * 0.5f, height * 0.5f);
+
+    // random point on circumference
+    Vector2 pos(
+        center.x + cosf(ang) * radius,
+        center.y + sinf(ang) * radius
+    );
+
+    p.position = pos;
+
+    // direction = from center to particle position
+    Vector2 dir = p.position - center;
+
+    // safety: avoid zero-length vector
+    if (dir.length() < 0.0001f)
+    {
+        float ang = frand01() * (float)(PI * 2.0);
+        dir = Vector2(cosf(ang), sinf(ang));
+    }
+    else
+    {
+        dir.normalize();
+    }
+
+    // speed
+    float baseSpeed = 250.0f + frand01() * 350.0f;
+    p.velocity = dir * baseSpeed;
+
+    if (p.colorful == 1 || p.colorful == 7) {
+        // COLOR DEPENDS ON SPEED
+        if (baseSpeed < 300.0f)
+            p.color = Color::BLUE;                     // 250–300 (blue star)
+        else if (baseSpeed < 350.0f)
+            p.color = Color::CYAN;                     // 300–350 (cyan star)
+        else if (baseSpeed < 400.0f)
+            p.color = Color(170, 200, 255);             // light blue star
+        else if (baseSpeed < 450.0f)
+            p.color = Color::WHITE;                    // white star
+        else if (baseSpeed < 500.0f)
+            p.color = Color::YELLOW;                   // yellow star
+        else if (baseSpeed < 550.0f)
+            p.color = Color(255, 170, 100);             // orange star
+        else
+            p.color = Color::PURPLE;                   // pink/purple star
+    }
+    else {
+        p.color = Color::BLACK;
+    }
+
+    // acceleration
+    p.acceleration = 50.0f + frand01() * 220.0f;
+
+    // ttl
+    p.ttl = 0.6f + frand01() * 1.0f;
+
+    p.inactive = false;
 }
