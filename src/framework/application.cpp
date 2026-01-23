@@ -26,6 +26,7 @@ Application::~Application()
 void Application::Init(void)
 {
 	std::cout << "Initiating app..." << std::endl;
+    // Loading images before running the app, save the result of load in an array to be sure everything was loaded
     bool correctLoad[16];
     correctLoad[0] = clear.LoadPNG("images/clear.png");
     correctLoad[1] = load.LoadPNG("images/load.png");
@@ -48,6 +49,7 @@ void Application::Init(void)
             std::cout << "Some Image was not found!" << std::endl;
         }
     }
+    // creation of buttons of menu bar
     butClear = Button(clear, 10, 10, CLEAR);
     butLoad = Button(load, 50, 10, LOAD);
     butSave = Button(save, 90, 10, SAVE);
@@ -73,21 +75,15 @@ void Application::Init(void)
 // Render one frame
 void Application::Render(void)
 {
-	// ...
-    
-    
     //framebuffer.Resize(window_width, window_height);
 
+	// if animation is called, render starfield
     if (starfield_initialized) {
         starfield.Render(&framebuffer);
     }
-
-    /*
-    if (!loadTGA) {
-    }
-    */
     
-    framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY); // Menu bar
+	// draw menu bar and buttons
+    framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY);
     butClear.DrawButton(framebuffer);
     butLoad.DrawButton(framebuffer);
 	butSave.DrawButton(framebuffer);
@@ -111,78 +107,81 @@ void Application::Render(void)
 // Called after render
 void Application::Update(float seconds_elapsed)
 {
+	// if animation is called, update starfield
     if (starfield_initialized)
         starfield.Update(seconds_elapsed);
 }
 
 void Application::makeAction(Action action) {
-    switch(action) {
-        case CLEAR:
-            framebuffer.Fill(Color::BLACK);
-            framebuffer.SaveTGA("clear.tga");
-            loadTGA = true;
-            framebuffer.LoadTGA("clear.tga");
-            break;
-        case LOAD:
-            loadTGA = true;
-            framebuffer.LoadTGA("output.tga", true);
-            break;
-        case SAVE:
-            framebuffer.SaveTGA("output.tga");
-            break;
-        case PENCIL:
-            currTool = PENCIL;
-            break;
-        case ERASER:
-            currTool = ERASER;
-            break;
-        case LINE:
-            currTool = LINE;
-            break;
-        case RECTANGLE:
-            currTool = RECTANGLE;
-            break;
-        case TRIANGLE:
-            currTool = TRIANGLE;
-            break;
-        case BLACK:
-            framebuffer.defColor = Color::BLACK;
-            break;
-        case WHITE:
-            framebuffer.defColor = Color::WHITE;
-            break;
-        case RED:
-            framebuffer.defColor = Color::RED;
-            break;
-        case GREEN:
-            framebuffer.defColor = Color::GREEN;
-            break;
-        case BLUE:
-            framebuffer.defColor = Color::BLUE;
-            break;
-        case YELLOW:
-            framebuffer.defColor = Color::YELLOW;
-            break;
-        case CYAN:
-            framebuffer.defColor = Color::CYAN;
-            break;
-        case PINK:
-            framebuffer.defColor = Color::PURPLE;
-            break;
-        
+    switch (action) {
+    case CLEAR:
+        framebuffer.Fill(Color::BLACK);
+        framebuffer.SaveTGA("clear.tga");
+        loadTGA = true;
+        framebuffer.LoadTGA("clear.tga");
+        break;
+    case LOAD:
+        loadTGA = true;
+        framebuffer.LoadTGA("output.tga", true);
+        break;
+    case SAVE:
+        framebuffer.SaveTGA("output.tga");
+        break;
+    case PENCIL:
+        currTool = PENCIL;
+        break;
+    case ERASER:
+        currTool = ERASER;
+        break;
+    case LINE:
+        currTool = LINE;
+        break;
+    case RECTANGLE:
+        currTool = RECTANGLE;
+        break;
+    case TRIANGLE:
+        currTool = TRIANGLE;
+        break;
+    case BLACK:
+        framebuffer.defColor = Color::BLACK;
+        break;
+    case WHITE:
+        framebuffer.defColor = Color::WHITE;
+        break;
+    case RED:
+        framebuffer.defColor = Color::RED;
+        break;
+    case GREEN:
+        framebuffer.defColor = Color::GREEN;
+        break;
+    case BLUE:
+        framebuffer.defColor = Color::BLUE;
+        break;
+    case YELLOW:
+        framebuffer.defColor = Color::YELLOW;
+        break;
+    case CYAN:
+        framebuffer.defColor = Color::CYAN;
+        break;
+    case PINK:
+        framebuffer.defColor = Color::PURPLE;
+        break;
     }
 }
 
 void Application::makeAnimation() {
+	// save the last paint framebuffer
     if(!starfield_initialized) {
         framebuffer.SaveTGA("paint.tga");
     }
+	// initialize starfield animation
     starfield.Init(framebuffer.width, framebuffer.height);
 	makeAction(CLEAR);
     starfield_initialized = true;
 }
 
 void Application::paint() {
+	// load last painted framebuffer
     makeAction(CLEAR);
 	starfield_initialized = false;
 	loadTGA = true;
@@ -195,11 +194,11 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 	// KEY CODES: https://wiki.libsdl.org/SDL2/SDL_Keycode
 	switch(event.keysym.sym) {
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-        case SDLK_PLUS: framebuffer.defBorderWidth++; break;
-        case SDLK_MINUS: framebuffer.defBorderWidth--; break;
-        case SDLK_1: paint(); break;
-        case SDLK_2: makeAnimation(); break;
-        case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break;
+		case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
+		case SDLK_MINUS: framebuffer.defBorderWidth--; break; // decrease border width
+		case SDLK_1: paint(); break; // go to paint mode
+		case SDLK_2: makeAnimation(); break; // go to animation mode
+		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
         default: break;
 	}
 }
@@ -241,7 +240,7 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
             makeAction(PINK);
         }
         if (currTool == LINE) {
-            *orig_mouse = mouse_position;
+            *orig_mouse = mouse_position; // save first point
             framebuffer.SaveTGA("temp.tga");
         }
         else if (currTool == RECTANGLE) {
@@ -254,7 +253,7 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
                     case 0:
                         *p0 = mouse_position;
                         framebuffer.SaveTGA("temp.tga");
-                        triCounter = 1;
+						triCounter = 1; // number of points clicked
                         break;
                     case 1:
                         *p1 = mouse_position;
@@ -299,7 +298,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
         if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
             if(mouse_position.y > 50) {
                 if(prev_mouse->x > 0) {
-                    if((time-prev_time)<0.05) {
+                    if((time-prev_time)<0.05) { // paint = lots of small lines
                         framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
                     }
                 }
@@ -335,7 +334,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             if(mouse_position.y > 50) {
                 int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
                 if(prev_data != NULL) {
-                    framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled, Color::BLACK);
+					framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled, Color::BLACK); // erase previous rectangle
                     framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
                     delete prev_data;
                 }
@@ -349,14 +348,14 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
                     break;
                 case 1:
                     if(prev_mouse->x > 0) {
-                        framebuffer.DrawLineDDA(p0->x, p0->y, prev_mouse->x, prev_mouse->y, Color::BLACK);
+						framebuffer.DrawLineDDA(p0->x, p0->y, prev_mouse->x, prev_mouse->y, Color::BLACK); // erase previous line
                         framebuffer.DrawLineDDA(p0->x, p0->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
                     }
                     *prev_mouse = mouse_position;
                     break;
                 case 2:
                     if(prev_mouse->x > 0) {
-                        framebuffer.DrawTriangle(*p0, *p1, *prev_mouse, Color::BLACK, framebuffer.isFilled, Color::BLACK);
+						framebuffer.DrawTriangle(*p0, *p1, *prev_mouse, Color::BLACK, framebuffer.isFilled, Color::BLACK); // erase previous triangle
                         framebuffer.DrawTriangle(*p0, *p1, mouse_position, framebuffer.defColor, framebuffer.isFilled, framebuffer.defColor);
                     }
                     *prev_mouse = mouse_position;

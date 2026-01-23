@@ -55,7 +55,7 @@ public:
         float acceleration; // adds speed over time
         float ttl;          // time to live (seconds)
         bool inactive;
-        int colorful = 0;
+		int colorful = 0;   // 1 or 7 = colorful stars, else black to erase previous stars
     };
 
     Particle particles[MAX_PARTICLES];

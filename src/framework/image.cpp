@@ -309,6 +309,7 @@ bool Image::SaveTGA(const char* filename)
 	unsigned char* bytes = new unsigned char[width*height*3];
 	for(unsigned int y = 0; y < height; ++y)
     */
+	// don't save the menu bar
     unsigned char* bytes = new unsigned char[width * height * 3];
     for (unsigned int y = 0; y < 50; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
@@ -358,6 +359,7 @@ void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
     }
 }
 
+// given a position determine if it has to be filled or not
 bool Image::toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth) {
     if((x+borderWidth <= i) && (y+borderWidth <= j) && (i < x+w-borderWidth ) && (j < y+h-borderWidth)) {
         return true;
@@ -366,7 +368,7 @@ bool Image::toBeFilled(int i, int j, int x, int y, int w, int h, int borderWidth
 }
 
 void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int borderWidth, bool isFilled, const Color& fillColor) {
-    if((w <= 2*borderWidth) || (h <= 2*borderWidth)) {    // Incorrect Parameters
+    if((w <= 2*borderWidth) || (h <= 2*borderWidth)) {    // incorrect passed parameters
         borderWidth = std::min(w/2, h/2) - 1;
     }
     for(int i=x; i<x+w; i++) {
@@ -382,6 +384,7 @@ void Image::DrawRect(int x, int y, int w, int h, const Color& borderColor, int b
     }
 }
 
+// fill AET table
 void Image::ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table) {
     float dx = x1-x0;
     float dy = y1-y0;
@@ -460,6 +463,7 @@ void Image::DrawImage(const Image& image, int x, int y) {
     }
 }
 
+// make a point inside the image, if it is already inside return NULL
 Vector2* Image::makeInside(const Vector2 &p) {
     Vector2 *in = new Vector2(p.x, p.y);
     bool modified = false;
