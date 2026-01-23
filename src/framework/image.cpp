@@ -407,6 +407,7 @@ void Image::ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table
 }
 
 void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor) {
+    // Avoiding out-of-bounds positions when resizing window
     Vector2* in0 = makeInside(p0);
     Vector2* in1 = makeInside(p1);
     Vector2* in2 = makeInside(p2);
@@ -450,6 +451,7 @@ void Image::DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2
         }
     }
     
+    // Drawing borders of Triangle
     DrawLineDDA(use0->x, use0->y, use1->x, use1->y, borderColor);
     DrawLineDDA(use0->x, use0->y, use2->x, use2->y, borderColor);
     DrawLineDDA(use1->x, use1->y, use2->x, use2->y, borderColor);
@@ -484,13 +486,14 @@ Vector2* Image::makeInside(const Vector2 &p) {
         modified = true;
     }
     if(!modified){
-        free(in);
+        delete in;
         return NULL;
     } else {
         return in;
     }
 }
 
+// given two diagonal vertices of rectangle, compute (x, y, width, height)
 int* Image::CompRect(Vector2 v1, Vector2 v2) {
     int* data = new int[4];
     Vector2 v3(v1.x, v2.y);
@@ -498,6 +501,7 @@ int* Image::CompRect(Vector2 v1, Vector2 v2) {
     Vector2 vs[4] = {v1, v2, v3, v4};
     Vector2 temp;
     
+    // ordering increasing vertices (x,y values)
     for(int i=0; i<4; i++) {
         for(int j=i+1; j<4; j++) {
             if((vs[j].x<=vs[i].x)&&(vs[j].y<=vs[i].y)) {

@@ -35,6 +35,7 @@ public:
 	unsigned int width;
 	unsigned int height;
     
+    // Managing Paint
     int defBorderWidth = 2;
     bool isFilled = false;
     Color defColor = Color::WHITE;
@@ -97,7 +98,6 @@ public:
     void DrawTriangle(const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& borderColor, bool isFilled, const Color& fillColor);
     void DrawImage(const Image& image, int x, int y);
     Vector2* makeInside(const Vector2& p);
-    void makeInside(int *x, int *y);
     int *CompRect(Vector2 v1, Vector2 v2);
 
 	// Used to easy code

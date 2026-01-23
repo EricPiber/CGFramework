@@ -75,7 +75,6 @@ void Application::Init(void)
 // Render one frame
 void Application::Render(void)
 {
-    //framebuffer.Resize(window_width, window_height);
 
 	// if animation is called, render starfield
     if (starfield_initialized) {
@@ -195,7 +194,7 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 	switch(event.keysym.sym) {
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
 		case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
-		case SDLK_MINUS: framebuffer.defBorderWidth--; break; // decrease border width
+        case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
 		case SDLK_1: paint(); break; // go to paint mode
 		case SDLK_2: makeAnimation(); break; // go to animation mode
 		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
@@ -414,7 +413,7 @@ void Button::DrawButton(Image& framebuffer) {
 void ParticleSystem::Init(int w, int h) {
     width = w; height = h;
     for (int i = 0; i < MAX_PARTICLES; ++i)
-        Respawn(particles[i], true);
+        Respawn(particles[i]);
 }
 
 void ParticleSystem::Render(Image* framebuffer) {
@@ -448,7 +447,7 @@ void ParticleSystem::Update(float dt) {
         Particle& p = particles[i];
         if (p.inactive) {
             p.colorful = rand() % 10;
-            Respawn(p, false);
+            Respawn(p);
             continue;
         }
 
@@ -476,15 +475,11 @@ void ParticleSystem::Update(float dt) {
     }
 }
 
-void ParticleSystem::OnResize(int w, int h) {
-    width = w; height = h;
-}
-
 float ParticleSystem::frand01() {
     return (float)rand() / (float)RAND_MAX;
 }
 
-void ParticleSystem::Respawn(Particle& p, bool initial)
+void ParticleSystem::Respawn(Particle& p)
 {
     float values[20] = {
         100.0f, 110.0f, 120.0f, 130.0f, 140.0f,

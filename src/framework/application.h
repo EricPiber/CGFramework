@@ -63,7 +63,6 @@ public:
     void Init(int w, int h);
     void Render(Image* framebuffer);
     void Update(float dt);
-    void OnResize(int w, int h);
 
 private:
     int width = 0;
@@ -73,7 +72,7 @@ private:
     float frand01();
 
     // respawn particle near center with outward velocity
-    void Respawn(Particle& p, bool initial);
+    void Respawn(Particle& p);
 };
 
 class Application
@@ -88,9 +87,6 @@ public:
     bool loadTGA = false;
     Action currTool;
 
-    ParticleSystem starfield;
-    bool starfield_initialized = false;
-
 	float time;
     float prev_time = 0;
 
@@ -99,6 +95,8 @@ public:
 	int mouse_state; // Tells which buttons are pressed
 	Vector2 mouse_position; // Last mouse position
 	Vector2 mouse_delta; // Mouse movement in the last frame
+    
+    // Managing Paint
     Vector2 *prev_mouse = new Vector2();
     Vector2 *orig_mouse = new Vector2();
     int *prev_data = NULL;
@@ -106,6 +104,10 @@ public:
     Vector2 *p0 = new Vector2();
     Vector2 *p1 = new Vector2();
     Vector2 *p2 = new Vector2();
+    
+    // Managing Animation
+    ParticleSystem starfield;
+    bool starfield_initialized = false;
 
 	void OnKeyPressed(SDL_KeyboardEvent event);
 	void OnMouseButtonDown(SDL_MouseButtonEvent event);
@@ -135,7 +137,7 @@ public:
     Image cyan;
     Image pink;
     
-
+    // OUR BUTTONS
     Button butClear;
 	Button butLoad;
 	Button butSave;
