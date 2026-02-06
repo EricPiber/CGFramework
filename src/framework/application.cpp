@@ -1,7 +1,8 @@
 #include "application.h"
 #include "mesh.h"
 #include "shader.h"
-#include "utils.h" 
+#include "utils.h"
+#include "entity.h"
 
 Application::Application(const char* caption, int width, int height)
 {
@@ -66,6 +67,12 @@ void Application::Init(void)
     butYellow = Button(yellow, 530, 10, YELLOW);
     butCyan = Button(cyan, 570, 10, CYAN);
     butPink = Button(pink, 610, 10, PINK);
+    
+    Mesh *mesh = new Mesh();
+    mesh->LoadOBJ("meshes/lee.obj");
+    
+    Matrix44 *model_matrix = new Matrix44();
+    Entity *entity = new Entity(mesh, model_matrix);
     
     
     framebuffer.Fill(Color::BLACK);
