@@ -118,16 +118,25 @@ void Camera::UpdateProjectionMatrix()
 	projection_matrix.SetIdentity();
 
 	// Comment this line to create your own projection matrix!
-	SetExampleProjectionMatrix();
+	// SetExampleProjectionMatrix();
 
 	// Remember how to fill a Matrix4x4 (check framework slides)
 	
 	if (type == PERSPECTIVE) {
-		// projection_matrix.M[2][3] = -1;
-		// ...
+		projection_matrix.Set(
+			1.0f/aspect*tan(DEG2RAD*fov), 0, 0, 0,
+			0, 1.0f/tan(fov*DEG2RAD), 0, 0,
+			0, 0, (far_plane+near_plane)/(near_plane-far_plane), 2.0f*far_plane*near_plane/(near_plane - far_plane),
+			0, 0, -1, 0
+		);
 	}
 	else if (type == ORTHOGRAPHIC) {
-		// ...
+		projection_matrix.Set(
+			2.0f/(right-left), 0, 0, -(right+left)/(right-left),
+			0, 2.0f/(top-bottom), 0, -(top+bottom)/(top-bottom),
+			0, 0, -2.0f/(far_plane-near_plane), -(far_plane+near_plane)/(far_plane-near_plane),
+			0, 0, 0, 1
+		);
 	} 
 
 	UpdateViewProjectionMatrix();

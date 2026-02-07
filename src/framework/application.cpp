@@ -69,12 +69,20 @@ void Application::Init(void)
     
     
     
-    Mesh *mesh = new Mesh();
-    mesh->LoadOBJ("meshes/lee.obj");
+    Mesh *mesh1 = new Mesh();
+    mesh1->LoadOBJ("meshes/lee.obj");
+    Mesh* mesh2 = new Mesh();
+    mesh2->LoadOBJ("meshes/anna.obj");
+    Mesh* mesh3 = new Mesh();
+    mesh3->LoadOBJ("meshes/cleo.obj");
     
-    Matrix44 *model_matrix = new Matrix44();
-    model_matrix->SetIdentity();
-    entity = new Entity(mesh, model_matrix);
+    model_matrix1 = new Matrix44();
+    model_matrix1->SetIdentity();
+	model_matrix1->MakeRotationMatrix(30 * DEG2RAD, Vector3(1, 0, 0));
+	model_matrix1->MakeScaleMatrix(2, 2, 2);
+    entity1 = new Entity(mesh1, model_matrix1);
+    //entity2 = new Entity(mesh2, model_matrix);
+    //entity3 = new Entity(mesh3, model_matrix);
     camera = new Camera();
     
     
@@ -206,9 +214,12 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
 		case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
         case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
-        case SDLK_1: entity->Render(&framebuffer, camera, Color::WHITE); break;
+        case SDLK_1: entity1->Render(&framebuffer, camera, Color::WHITE); break;
             //paint(); break; // go to paint mode
-		case SDLK_2: makeAnimation(); break; // go to animation mode
+		case SDLK_2: entity1->Render(&framebuffer, camera, Color::WHITE);
+            //entity2->Render(&framebuffer, camera, Color::WHITE); 
+            //entity3->Render(&framebuffer, camera, Color::WHITE); 
+            break; // go to animation mode
 		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
         default: break;
 	}

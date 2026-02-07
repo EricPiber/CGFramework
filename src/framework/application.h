@@ -157,7 +157,10 @@ public:
 	Button butCyan;
 	Button butPink;
     
-    Entity *entity;
+	Matrix44 *model_matrix1;
+    Entity *entity1;
+    Entity* entity2;
+    Entity* entity3;
     Camera *camera;
 
     
