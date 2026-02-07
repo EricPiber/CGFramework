@@ -7,6 +7,8 @@
 #include "main/includes.h"
 #include "framework.h"
 #include "image.h"
+#include "entity.h"
+#include "camera.h"
 
 enum Action {
     CLEAR,
@@ -154,6 +156,9 @@ public:
 	Button butYellow;
 	Button butCyan;
 	Button butPink;
+    
+    Entity *entity;
+    Camera *camera;
 
     
 	// Constructor and main methods

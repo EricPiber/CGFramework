@@ -2,7 +2,6 @@
 #include "mesh.h"
 #include "shader.h"
 #include "utils.h"
-#include "entity.h"
 
 Application::Application(const char* caption, int width, int height)
 {
@@ -68,11 +67,16 @@ void Application::Init(void)
     butCyan = Button(cyan, 570, 10, CYAN);
     butPink = Button(pink, 610, 10, PINK);
     
+    
+    
     Mesh *mesh = new Mesh();
     mesh->LoadOBJ("meshes/lee.obj");
     
     Matrix44 *model_matrix = new Matrix44();
-    Entity *entity = new Entity(mesh, model_matrix);
+    model_matrix->SetIdentity();
+    entity = new Entity(mesh, model_matrix);
+    camera = new Camera();
+    
     
     
     framebuffer.Fill(Color::BLACK);
@@ -202,7 +206,8 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
 		case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
         case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
-		case SDLK_1: paint(); break; // go to paint mode
+        case SDLK_1: entity->Render(&framebuffer, camera, Color::WHITE); break;
+            //paint(); break; // go to paint mode
 		case SDLK_2: makeAnimation(); break; // go to animation mode
 		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
         default: break;

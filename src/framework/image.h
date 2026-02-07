@@ -36,7 +36,7 @@ public:
 	unsigned int height;
     
     // Managing Paint
-    int defBorderWidth = 2;
+    int defBorderWidth = 1;
     bool isFilled = false;
     Color defColor = Color::WHITE;
     

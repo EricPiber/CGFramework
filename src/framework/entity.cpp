@@ -16,16 +16,17 @@ bool Entity::isInside(Vector3 v) {
         v.z >= -1.0f && v.z <= 1.0f;
 }
 
-Vector2 Entity::Entity::GetScreenCoordinates(Vector3 v, int width, int height) {
+Vector2 Entity::GetScreenCoordinates(Vector3 v, int width, int height) {
     // Convert from clip space (-1 to 1) to screen space (0 to width/height)
     float x = (v.x * 0.5f + 0.5f) * width;
-	float y = (1.0f - (v.y * 0.5f + 0.5f)) * height;
+    float y = (v.y * 0.5f + 0.5f) * height;
+    //float y = (1.0f - (v.y * 0.5f + 0.5f)) * height;
     return Vector2(x, y);
 }
 
 void Entity::Render(Image* framebuffer, Camera* camera, const Color& c) {
 	std::vector<Vector3> mesh_vert = mesh->GetVertices();
-	int num_vert = mesh_vert.size();
+	unsigned long num_vert = mesh_vert.size();
 	if (num_vert < 3) {  // not enough vertices to render a triangle
         return;
     }

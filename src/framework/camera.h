@@ -65,4 +65,6 @@ public:
 	void UpdateViewProjectionMatrix();
 
 	Matrix44 GetViewProjectionMatrix();
+    
+    Matrix44 GetFRUMatix();
 };

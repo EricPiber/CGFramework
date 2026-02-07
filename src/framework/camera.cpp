@@ -86,17 +86,27 @@ void Camera::UpdateViewMatrix()
 	view_matrix.SetIdentity();
 
 	// Comment this line to create your own projection matrix!
-	SetExampleViewMatrix();
+	// SetExampleViewMatrix();
 
 	// Remember how to fill a Matrix4x4 (check framework slides)
 	// Careful with the order of matrix multiplications, and be sure to use normalized vectors!
 	
 	// Create the view matrix rotation
+    Matrix44 Rt = GetFRUMatix();
+    Rt.Transpose();
+    
 	// ...
 	// view_matrix.M[3][3] = 1.0;
 
 	// Translate view matrix
-	// ...
+    Matrix44 T = Matrix44();
+    T.Set(
+          1, 0, 0, -eye.x,
+          0, 1, 0, -eye.y,
+          0, 0, 1, -eye.z,
+          0, 0, 0, 1
+          );
+    view_matrix = Rt * T;
 
 	UpdateViewProjectionMatrix();
 }
@@ -159,4 +169,28 @@ void Camera::SetExampleProjectionMatrix()
 
 	glGetFloatv(GL_PROJECTION_MATRIX, projection_matrix.m );
 	glMatrixMode(GL_MODELVIEW);
+}
+
+Matrix44 Camera::GetFRUMatix() {
+    Vector3 forward = Vector3();
+    Vector3 right = Vector3();
+    Vector3 local_up = Vector3();
+    
+    forward = eye - center;
+    forward.Normalize();
+    
+    right = up.Cross(forward);
+    right.Normalize();
+    
+    local_up = forward.Cross(right);
+    local_up.Normalize();
+    
+    Matrix44 R = Matrix44();
+    R.Set(
+          right.x,  local_up.x, forward.x,  0,
+          right.y,  local_up.y, forward.y,  0,
+          right.z,  local_up.z, forward.z,  0,
+          0,        0,          0,          1
+          );
+    return R;
 }
