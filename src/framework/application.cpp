@@ -90,9 +90,9 @@ void Application::Init(void)
         Matrix44 mTrans4 = Matrix44();
         
 		mTrans0.MakeTranslationMatrix(0, -0.2, 0);
-        mTrans1.MakeTranslationMatrix(0.7, 0.3, 0);
-        mTrans2.MakeTranslationMatrix(-0.7, 0.3, 0);
-        mTrans3.MakeTranslationMatrix(0, -1, 0);
+        mTrans1.MakeTranslationMatrix(0.7, 0.3, -1);
+        mTrans2.MakeTranslationMatrix(-0.7, 0.3, -1);
+        mTrans3.MakeTranslationMatrix(0, -1, -0.5);
         mTrans4.MakeTranslationMatrix(0, 0.2, 0);
 
         
@@ -115,7 +115,7 @@ void Application::Init(void)
         
         camera = new Camera();
         // for perspective projection:
-        camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
+        camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
         camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         
         //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
@@ -263,24 +263,14 @@ void Application::paint() {
 }
 
 void Application::changeCameraProp(float d) {
-    switch (camProp) {
-    case CAM_NEAR:
-        camera->near_plane = std::max(camera->far_plane + 0.01f, camera->near_plane + d);
-        break;
-    case CAM_FAR:
-        camera->far_plane = std::min(camera->near_plane - 0.01f, camera->far_plane + d);
-        break;
-    case CAM_FOV:
-		camera->fov = clamp(camera->fov + (d*50), 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
-        break;
+    if (camProp == CAM_NEAR) {
+        camera->near_plane = fmin(camera->far_plane - 0.1f, camera->near_plane + d);
+    } else if (camProp == CAM_FAR) {
+        camera->far_plane = fmax(camera->near_plane + 0.1f, camera->far_plane + d);
+    } else if (camProp == CAM_FOV) {
+        camera->fov = clamp(camera->fov + (d*50), 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
     }
-    /*
-	if (camera->type == Camera::PERSPECTIVE) {
-        camera->SetPerspective(camera->fov, camera->aspect, camera->near_plane, camera->far_plane);
-    } else {
-        camera->SetOrthographic(camera->left, camera->right, camera->top, camera->bottom, camera->near_plane, camera->far_plane);
-    }
-    */
+    
     camera->UpdateProjectionMatrix();
 	camera->UpdateViewProjectionMatrix();
 }
