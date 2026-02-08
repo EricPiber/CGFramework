@@ -26,67 +26,89 @@ Application::~Application()
 void Application::Init(void)
 {
 	std::cout << "Initiating app..." << std::endl;
-    // Loading images before running the app, save the result of load in an array to be sure everything was loaded
-    bool correctLoad[16];
-    correctLoad[0] = clear.LoadPNG("images/clear.png");
-    correctLoad[1] = load.LoadPNG("images/load.png");
-    correctLoad[2] = save.LoadPNG("images/save.png");
-    correctLoad[3] = pencil.LoadPNG("images/pencil.png");
-    correctLoad[4] = eraser.LoadPNG("images/eraser.png");
-    correctLoad[5] = line.LoadPNG("images/line.png");
-    correctLoad[6] = rectangle.LoadPNG("images/rectangle.png");
-    correctLoad[7] = triangle.LoadPNG("images/triangle.png");
-    correctLoad[8] = black.LoadPNG("images/black.png");
-    correctLoad[9] = white.LoadPNG("images/white.png");
-    correctLoad[10] = red.LoadPNG("images/red.png");
-    correctLoad[11] = green.LoadPNG("images/green.png");
-    correctLoad[12] = blue.LoadPNG("images/blue.png");
-    correctLoad[13] = yellow.LoadPNG("images/yellow.png");
-    correctLoad[14] = cyan.LoadPNG("images/cyan.png");
-    correctLoad[15] = pink.LoadPNG("images/pink.png");
-    for(int i=0; i<16; i++) {
-        if(correctLoad[i] == false) {
-            std::cout << "Some Image was not found!" << std::endl;
+    
+    if (lab == 1) {
+        // Loading images before running the app, save the result of load in an array to be sure everything was loaded
+        bool correctLoad[16];
+        correctLoad[0] = clear.LoadPNG("images/clear.png");
+        correctLoad[1] = load.LoadPNG("images/load.png");
+        correctLoad[2] = save.LoadPNG("images/save.png");
+        correctLoad[3] = pencil.LoadPNG("images/pencil.png");
+        correctLoad[4] = eraser.LoadPNG("images/eraser.png");
+        correctLoad[5] = line.LoadPNG("images/line.png");
+        correctLoad[6] = rectangle.LoadPNG("images/rectangle.png");
+        correctLoad[7] = triangle.LoadPNG("images/triangle.png");
+        correctLoad[8] = black.LoadPNG("images/black.png");
+        correctLoad[9] = white.LoadPNG("images/white.png");
+        correctLoad[10] = red.LoadPNG("images/red.png");
+        correctLoad[11] = green.LoadPNG("images/green.png");
+        correctLoad[12] = blue.LoadPNG("images/blue.png");
+        correctLoad[13] = yellow.LoadPNG("images/yellow.png");
+        correctLoad[14] = cyan.LoadPNG("images/cyan.png");
+        correctLoad[15] = pink.LoadPNG("images/pink.png");
+        for(int i=0; i<16; i++) {
+            if(correctLoad[i] == false) {
+                std::cout << "Some Image was not found!" << std::endl;
+            }
         }
+        // creation of buttons of menu bar
+        butClear = Button(clear, 10, 10, CLEAR);
+        butLoad = Button(load, 50, 10, LOAD);
+        butSave = Button(save, 90, 10, SAVE);
+        butPencil = Button(pencil, 130, 10, PENCIL);
+        butEraser = Button(eraser, 170, 10, ERASER);
+        butLine = Button(line, 210, 10, LINE);
+        butRectangle = Button(rectangle, 250, 10, RECTANGLE);
+        butTriangle = Button(triangle, 290, 10, TRIANGLE);
+        butBlack = Button(black, 330, 10, BLACK);
+        butWhite = Button(white, 370, 10, WHITE);
+        butRed = Button(red, 410, 10, RED);
+        butGreen = Button(green, 450, 10, GREEN);
+        butBlue = Button(blue, 490, 10, BLUE);
+        butYellow = Button(yellow, 530, 10, YELLOW);
+        butCyan = Button(cyan, 570, 10, CYAN);
+        butPink = Button(pink, 610, 10, PINK);
+    } else if (lab == 2) {
+        
+        Mesh *mesh1 = new Mesh();
+        mesh1->LoadOBJ("meshes/lee.obj");
+        Mesh* mesh2 = new Mesh();
+        mesh2->LoadOBJ("meshes/anna.obj");
+        Mesh* mesh3 = new Mesh();
+        mesh3->LoadOBJ("meshes/cleo.obj");
+        
+        model_matrix1 = new Matrix44();
+        model_matrix2 = new Matrix44();
+        model_matrix3 = new Matrix44();
+        model_matrix4 = new Matrix44();
+        
+        Matrix44 mTrans1 = Matrix44();
+        Matrix44 mTrans2 = Matrix44();
+        Matrix44 mTrans3 = Matrix44();
+        Matrix44 mTrans4 = Matrix44();
+        
+        mTrans1.MakeTranslationMatrix(0.8, 0.3, -0.3);
+        mTrans2.MakeTranslationMatrix(-0.8, 0.3, -0.3);
+        mTrans3.MakeTranslationMatrix(0, -1, -0.3);
+        mTrans4.MakeTranslationMatrix(0, 0.2, -0.3);
+        
+        Matrix44 mScale = Matrix44();
+        mScale.MakeScaleMatrix(0.8f, 0.8f, 0.8f);
+        
+        *model_matrix1 = mTrans1 * mScale;
+        *model_matrix2 = mTrans2 * mScale;
+        *model_matrix3 = mTrans3 * mScale;
+        *model_matrix4 = mTrans4 * mScale;
+        
+        
+        entity1 = new Entity(mesh3, model_matrix1, 1);
+        entity2 = new Entity(mesh2, model_matrix2, 2);
+        entity3 = new Entity(mesh3, model_matrix3, 3);
+        entity4 = new Entity(mesh1, model_matrix4, 4);
+        
+        camera = new Camera();
+        
     }
-    // creation of buttons of menu bar
-    butClear = Button(clear, 10, 10, CLEAR);
-    butLoad = Button(load, 50, 10, LOAD);
-    butSave = Button(save, 90, 10, SAVE);
-    butPencil = Button(pencil, 130, 10, PENCIL);
-    butEraser = Button(eraser, 170, 10, ERASER);
-    butLine = Button(line, 210, 10, LINE);
-    butRectangle = Button(rectangle, 250, 10, RECTANGLE);
-    butTriangle = Button(triangle, 290, 10, TRIANGLE);
-    butBlack = Button(black, 330, 10, BLACK);
-    butWhite = Button(white, 370, 10, WHITE);
-    butRed = Button(red, 410, 10, RED);
-    butGreen = Button(green, 450, 10, GREEN);
-    butBlue = Button(blue, 490, 10, BLUE);
-    butYellow = Button(yellow, 530, 10, YELLOW);
-    butCyan = Button(cyan, 570, 10, CYAN);
-    butPink = Button(pink, 610, 10, PINK);
-    
-    
-    
-    Mesh *mesh1 = new Mesh();
-    mesh1->LoadOBJ("meshes/lee.obj");
-    Mesh* mesh2 = new Mesh();
-    mesh2->LoadOBJ("meshes/anna.obj");
-    Mesh* mesh3 = new Mesh();
-    mesh3->LoadOBJ("meshes/cleo.obj");
-    
-    model_matrix1 = new Matrix44();
-    model_matrix1->SetIdentity();
-	model_matrix1->MakeRotationMatrix(30 * DEG2RAD, Vector3(1, 0, 0));
-	model_matrix1->MakeScaleMatrix(2, 2, 2);
-    entity1 = new Entity(mesh1, model_matrix1);
-    //entity2 = new Entity(mesh2, model_matrix);
-    //entity3 = new Entity(mesh3, model_matrix);
-    camera = new Camera();
-    
-    
-    
     framebuffer.Fill(Color::BLACK);
     
 }
@@ -95,39 +117,58 @@ void Application::Init(void)
 void Application::Render(void)
 {
 
-	// if animation is called, render starfield
-    if (starfield_initialized) {
-        starfield.Render(&framebuffer);
+    if (lab == 1) {
+        // if animation is called, render starfield
+        if (starfield_initialized) {
+            starfield.Render(&framebuffer);
+        }
+        
+        // draw menu bar and buttons
+        framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY);
+        butClear.DrawButton(framebuffer);
+        butLoad.DrawButton(framebuffer);
+        butSave.DrawButton(framebuffer);
+        butPencil.DrawButton(framebuffer);
+        butEraser.DrawButton(framebuffer);
+        butLine.DrawButton(framebuffer);
+        butRectangle.DrawButton(framebuffer);
+        butTriangle.DrawButton(framebuffer);
+        butBlack.DrawButton(framebuffer);
+        butWhite.DrawButton(framebuffer);
+        butRed.DrawButton(framebuffer);
+        butGreen.DrawButton(framebuffer);
+        butBlue.DrawButton(framebuffer);
+        butYellow.DrawButton(framebuffer);
+        butCyan.DrawButton(framebuffer);
+        butPink.DrawButton(framebuffer);
+    } else if (lab == 2) {
+        if (entities_initialized) {
+            makeAction(CLEAR);
+            entity1->Render(&framebuffer, camera, Color::RED);
+            entity2->Render(&framebuffer, camera, Color::WHITE);
+            entity3->Render(&framebuffer, camera, Color::BLUE);
+            entity4->Render(&framebuffer, camera, Color::GREEN);
+        }
     }
-    
-	// draw menu bar and buttons
-    framebuffer.DrawRect(0, 0, framebuffer.width, 50, Color::GRAY, 1, true, Color::GRAY);
-    butClear.DrawButton(framebuffer);
-    butLoad.DrawButton(framebuffer);
-	butSave.DrawButton(framebuffer);
-	butPencil.DrawButton(framebuffer);
-	butEraser.DrawButton(framebuffer);
-	butLine.DrawButton(framebuffer);
-	butRectangle.DrawButton(framebuffer);
-	butTriangle.DrawButton(framebuffer);
-	butBlack.DrawButton(framebuffer);
-	butWhite.DrawButton(framebuffer);
-	butRed.DrawButton(framebuffer);
-	butGreen.DrawButton(framebuffer);
-	butBlue.DrawButton(framebuffer);
-	butYellow.DrawButton(framebuffer);
-	butCyan.DrawButton(framebuffer);
-    butPink.DrawButton(framebuffer);
-    
+     
     framebuffer.Render();
 }
 
 // Called after render
 void Application::Update(float seconds_elapsed)
 {
-	// if animation is called, update starfield
-    if (starfield_initialized)
-        starfield.Update(seconds_elapsed);
+    if (lab == 1) {
+        // if animation is called, update starfield
+        if (starfield_initialized)
+            starfield.Update(seconds_elapsed);
+    } else if (lab == 2) {
+        if (entities_initialized) {
+            entity1->Update(seconds_elapsed);
+            entity2->Update(seconds_elapsed);
+            entity3->Update(seconds_elapsed);
+            entity4->Update(seconds_elapsed);
+        }
+    }
 }
 
 void Application::makeAction(Action action) {
@@ -210,19 +251,27 @@ void Application::paint() {
 void Application::OnKeyPressed( SDL_KeyboardEvent event )
 {
 	// KEY CODES: https://wiki.libsdl.org/SDL2/SDL_Keycode
-	switch(event.keysym.sym) {
-		case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-		case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
-        case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
-        case SDLK_1: entity1->Render(&framebuffer, camera, Color::WHITE); break;
-            //paint(); break; // go to paint mode
-		case SDLK_2: entity1->Render(&framebuffer, camera, Color::WHITE);
-            //entity2->Render(&framebuffer, camera, Color::WHITE); 
-            //entity3->Render(&framebuffer, camera, Color::WHITE); 
-            break; // go to animation mode
-		case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
-        default: break;
-	}
+    if (lab == 1) {
+        switch(event.keysym.sym) {
+            case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
+            case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
+            case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
+            case SDLK_1: paint(); break; // go to paint mode
+            case SDLK_2: makeAnimation(); break; // go to animation mode
+            case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
+            default: break;
+        }
+    } else if (lab == 2) {
+        switch(event.keysym.sym) {
+            case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
+            case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
+            case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
+            case SDLK_1: makeAction(CLEAR); entities_initialized = false; entity1->Render(&framebuffer, camera, Color::WHITE); break;
+            case SDLK_2: makeAction(CLEAR); entities_initialized = !entities_initialized; break;
+            case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
+            default: break;
+        }
+    }
 }
 
 void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )

@@ -81,7 +81,9 @@ class Application
 {
 public:
 
-	// Window
+    int lab = 2;
+    
+    // Window
 
 	SDL_Window* window = nullptr;
 	int window_width;
@@ -158,10 +160,16 @@ public:
 	Button butPink;
     
 	Matrix44 *model_matrix1;
+    Matrix44 *model_matrix2;
+    Matrix44 *model_matrix3;
+    Matrix44 *model_matrix4;
     Entity *entity1;
-    Entity* entity2;
-    Entity* entity3;
+    Entity *entity2;
+    Entity *entity3;
+    Entity *entity4;
     Camera *camera;
+    
+    bool entities_initialized = false;
 
     
 	// Constructor and main methods
@@ -181,6 +189,7 @@ public:
 		this->window_width = width;
 		this->window_height = height;
 		this->framebuffer.Resize(width, height);
+        this->camera->SetAspectRatio((float)width/(float)height);
 	}
 
 	Vector2 GetWindowSize()
