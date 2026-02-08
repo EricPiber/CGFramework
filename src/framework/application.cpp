@@ -474,10 +474,8 @@ void Application::OnWheel(SDL_MouseWheelEvent event)
 
     if (dy > 0) {  // up -> zoom in
 		Vector3 temp = camera->center - camera->eye;
-		temp = temp * 0.1f; // move 5% of the distance between eye and center
+		temp = temp * 0.1f; // move 10% of the distance between eye and center
 		currProperty temp2 = camProp;
-		camProp = CAM_NEAR;
-        changeCameraProp(-temp.Length());
         camProp = CAM_FAR;
         changeCameraProp(-temp.Length());
         camProp = temp2;
@@ -486,10 +484,8 @@ void Application::OnWheel(SDL_MouseWheelEvent event)
         camera->UpdateViewProjectionMatrix();
 	} else if (dy < 0) {  // down -> zoom out
         Vector3 temp = camera->eye - camera->center;
-        temp = temp * 0.1f; // move 5% of the distance between eye and center
+        temp = temp * 0.1f; // move 10% of the distance between eye and center
         currProperty temp2 = camProp;
-        camProp = CAM_NEAR;
-        changeCameraProp(temp.Length());
         camProp = CAM_FAR;
         changeCameraProp(temp.Length());
 		camProp = temp2;
