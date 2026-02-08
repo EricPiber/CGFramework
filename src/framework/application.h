@@ -226,9 +226,7 @@ public:
         float newHalfH = oldHalfH * sy;
 
         // update ortho using scaled world extents
-        camera->SetOrthographic(cx - newHalfW, cx + newHalfW,
-            cy + newHalfH, cy - newHalfH,
-            camera->near_plane, camera->far_plane);
+        camera->SetOrthographic(cx - newHalfW, cx + newHalfW, cy + newHalfH, cy - newHalfH, camera->near_plane, camera->far_plane);
         camera->UpdateProjectionMatrix();
         camera->UpdateViewProjectionMatrix();
 	}

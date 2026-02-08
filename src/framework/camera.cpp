@@ -86,7 +86,7 @@ void Camera::UpdateViewMatrix()
 	view_matrix.SetIdentity();
 
 	// Comment this line to create your own projection matrix!
-	// SetExampleViewMatrix();
+	//SetExampleViewMatrix();
 
 	// Remember how to fill a Matrix4x4 (check framework slides)
 	// Careful with the order of matrix multiplications, and be sure to use normalized vectors!
@@ -107,7 +107,7 @@ void Camera::UpdateViewMatrix()
           0, 0, 0, 1
           );
     view_matrix = Rt * T;
-
+    
 	UpdateViewProjectionMatrix();
 }
 
@@ -118,16 +118,17 @@ void Camera::UpdateProjectionMatrix()
 	projection_matrix.SetIdentity();
 
 	// Comment this line to create your own projection matrix!
-	// SetExampleProjectionMatrix();
+	//SetExampleProjectionMatrix();
 
 	// Remember how to fill a Matrix4x4 (check framework slides)
 	
+    
 	if (type == PERSPECTIVE) {
 		projection_matrix.Set(
-			1.0f/aspect*tan(DEG2RAD*fov), 0, 0, 0,
-			0, 1.0f/tan(fov*DEG2RAD), 0, 0,
-			0, 0, (far_plane+near_plane)/(near_plane-far_plane), 2.0f*far_plane*near_plane/(near_plane - far_plane),
-			0, 0, -1, 0
+			1.0f/aspect*tanf(DEG2RAD*fov/2.0f), 0, 0, 0,
+			0, 1.0f/tanf(DEG2RAD*fov/2.0f), 0, 0,
+			0, 0, (far_plane+near_plane)/(near_plane-far_plane), (2.0f*far_plane*near_plane)/(near_plane - far_plane),
+			0, 0, -1.0f, 0
 		);
 	}
 	else if (type == ORTHOGRAPHIC) {
@@ -137,7 +138,7 @@ void Camera::UpdateProjectionMatrix()
 			0, 0, -2.0f/(far_plane-near_plane), -(far_plane+near_plane)/(far_plane-near_plane),
 			0, 0, 0, 1
 		);
-	} 
+	}
 
 	UpdateViewProjectionMatrix();
 }

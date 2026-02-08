@@ -112,6 +112,11 @@ void Application::Init(void)
         entity4 = new Entity(mesh1, model_matrix4, 4);
         
         camera = new Camera();
+        // for perspective projection:
+        camera->SetPerspective((60.0f * DEG2RAD), (float)window_width / (float)window_height, 0.1f, 1000.0f);
+        camera->LookAt(Vector3(0.0f, 20.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        
+        //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
         
     }
     framebuffer.Fill(Color::BLACK);
