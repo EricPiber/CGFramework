@@ -125,7 +125,7 @@ void Camera::UpdateProjectionMatrix()
     
 	if (type == PERSPECTIVE) {
 		projection_matrix.Set(
-			1.0f/aspect*tanf(DEG2RAD*fov/2.0f), 0, 0, 0,
+			1.0f/(aspect*tanf(DEG2RAD*fov/2.0f)), 0, 0, 0,
 			0, 1.0f/tanf(DEG2RAD*fov/2.0f), 0, 0,
 			0, 0, (far_plane+near_plane)/(near_plane-far_plane), (2.0f*far_plane*near_plane)/(near_plane - far_plane),
 			0, 0, -1.0f, 0

@@ -89,17 +89,19 @@ void Application::Init(void)
         Matrix44 mTrans3 = Matrix44();
         Matrix44 mTrans4 = Matrix44();
         
-		mTrans0.MakeTranslationMatrix(0, 0, -0.3);
-        mTrans1.MakeTranslationMatrix(0.7, 0.3, -0.3);
-        mTrans2.MakeTranslationMatrix(-0.7, 0.3, -0.3);
-        mTrans3.MakeTranslationMatrix(0, -1, -0.3);
-        mTrans4.MakeTranslationMatrix(0, 0.2, -0.3);
+		mTrans0.MakeTranslationMatrix(0, -0.2, 0);
+        mTrans1.MakeTranslationMatrix(0.7, 0.3, 0);
+        mTrans2.MakeTranslationMatrix(-0.7, 0.3, 0);
+        mTrans3.MakeTranslationMatrix(0, -1, 0);
+        mTrans4.MakeTranslationMatrix(0, 0.2, 0);
 
         
         Matrix44 mScale = Matrix44();
+        Matrix44 mScale0 = Matrix44();
         mScale.MakeScaleMatrix(1.0f, 1.0f, 1.0f);
+        mScale0.MakeScaleMatrix(2.0f, 2.0f, 2.0f);
         
-		*model_matrix0 = mTrans0 * mScale;
+		*model_matrix0 = mTrans0 * mScale0;
         *model_matrix1 = mTrans1 * mScale;
         *model_matrix2 = mTrans2 * mScale;
         *model_matrix3 = mTrans3 * mScale;
@@ -113,8 +115,8 @@ void Application::Init(void)
         
         camera = new Camera();
         // for perspective projection:
-        camera->SetPerspective((60.0f * DEG2RAD), (float)window_width / (float)window_height, 0.1f, 1000.0f);
-        camera->LookAt(Vector3(0.0f, 20.0f, 100.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.1f, 1000.0f);
+        camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         
         //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
         
@@ -263,20 +265,23 @@ void Application::paint() {
 void Application::changeCameraProp(float d) {
     switch (camProp) {
     case CAM_NEAR:
-        camera->near_plane = std::min(camera->far_plane - 0.01f, camera->near_plane + d);
+        camera->near_plane = std::max(camera->far_plane + 0.01f, camera->near_plane + d);
         break;
     case CAM_FAR:
-        camera->far_plane = std::min(camera->near_plane + 0.01f, camera->far_plane + d);
+        camera->far_plane = std::min(camera->near_plane - 0.01f, camera->far_plane + d);
         break;
     case CAM_FOV:
-		camera->fov = clamp(camera->fov + d, 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
+		camera->fov = clamp(camera->fov + (d*50), 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
         break;
     }
+    /*
 	if (camera->type == Camera::PERSPECTIVE) {
         camera->SetPerspective(camera->fov, camera->aspect, camera->near_plane, camera->far_plane);
     } else {
         camera->SetOrthographic(camera->left, camera->right, camera->top, camera->bottom, camera->near_plane, camera->far_plane);
     }
+    */
+    camera->UpdateProjectionMatrix();
 	camera->UpdateViewProjectionMatrix();
 }
 
@@ -297,13 +302,13 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
     } else if (lab == 2) {
         switch(event.keysym.sym) {
             case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-            case SDLK_PLUS: changeCameraProp(0.01); break;
-            case SDLK_MINUS: changeCameraProp(-0.01); break;
+            case SDLK_PLUS: changeCameraProp(0.1); break;
+            case SDLK_MINUS: changeCameraProp(-0.1); break;
             case SDLK_1: makeAction(CLEAR); entities_initialized = false; break;
             case SDLK_2: makeAction(CLEAR); entities_initialized = !entities_initialized; break;
-            case SDLK_f: camProp = CAM_FAR;; break;
-			case SDLK_n: camProp = CAM_NEAR;; break;
-			case SDLK_v: camProp = CAM_FOV;; break;
+            case SDLK_f: camProp = CAM_FAR; break;
+			case SDLK_n: camProp = CAM_NEAR; break;
+			case SDLK_v: camProp = CAM_FOV; break;
             default: break;
         }
     }
