@@ -29,6 +29,12 @@ enum Action {
     PINK
 };
 
+enum currProperty {
+    CAM_NEAR,
+    CAM_FAR,
+    CAM_FOV,
+};
+
 class Button
 {
 public:
@@ -173,7 +179,7 @@ public:
     Camera *camera;
     
     bool entities_initialized = false;
-
+	currProperty camProp;
     
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);
@@ -185,6 +191,7 @@ public:
 	void makeAction(Action action);
 	void makeAnimation();
 	void paint();
+    void changeCameraProp(float d);
 
 	// Other methods to control the app
 	void SetWindowSize(int width, int height) {

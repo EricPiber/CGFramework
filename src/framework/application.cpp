@@ -255,6 +255,26 @@ void Application::paint() {
     framebuffer.LoadTGA("paint.tga", true);
 }
 
+void Application::changeCameraProp(float d) {
+    switch (camProp) {
+    case CAM_NEAR:
+        camera->near_plane = std::min(camera->far_plane - 0.01f, camera->near_plane + d);
+        break;
+    case CAM_FAR:
+        camera->far_plane = std::min(camera->near_plane + 0.01f, camera->far_plane + d);
+        break;
+    case CAM_FOV:
+		camera->fov = clamp(camera->fov + d, 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
+        break;
+    }
+	if (camera->type == Camera::PERSPECTIVE) {
+        camera->SetPerspective(camera->fov, camera->aspect, camera->near_plane, camera->far_plane);
+    } else {
+        camera->SetOrthographic(camera->left, camera->right, camera->top, camera->bottom, camera->near_plane, camera->far_plane);
+    }
+	camera->UpdateViewProjectionMatrix();
+}
+
 //keyboard press event 
 void Application::OnKeyPressed( SDL_KeyboardEvent event )
 {
@@ -272,11 +292,13 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
     } else if (lab == 2) {
         switch(event.keysym.sym) {
             case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-            case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
-            case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
+            case SDLK_PLUS: changeCameraProp(0.01); break;
+            case SDLK_MINUS: changeCameraProp(-0.01); break;
             case SDLK_1: makeAction(CLEAR); entities_initialized = false; break;
             case SDLK_2: makeAction(CLEAR); entities_initialized = !entities_initialized; break;
-            case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
+            case SDLK_f: camProp = CAM_FAR;; break;
+			case SDLK_n: camProp = CAM_NEAR;; break;
+			case SDLK_v: camProp = CAM_FOV;; break;
             default: break;
         }
     }
