@@ -395,75 +395,83 @@ void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
 
 void Application::OnMouseMove(SDL_MouseButtonEvent event)
 {
-    if(currTool == PENCIL) {
-        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            if(mouse_position.y > 50) {
-                if(prev_mouse->x > 0) {
-                    if((time-prev_time)<0.05) { // paint = lots of small lines
-                        framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
-                    }
-                }
-                *prev_mouse = mouse_position;
-                prev_time = time;
-            }
-        }
-    }
-    else if(currTool == ERASER) {
-        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            if(mouse_position.y > 50) {
-                if(prev_mouse->x > 0) {
-                    if((time-prev_time)<0.05) {
-                        framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, Color::BLACK);
-                    }
-                }
-                *prev_mouse = mouse_position;
-                prev_time = time;
-            }
-        }
-    } else if(currTool == LINE) {
-        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            if(mouse_position.y > 50) {
-                if(prev_mouse->x > 0) {
-                    framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, prev_mouse->x, prev_mouse->y, Color::BLACK);
-                    framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
-                }
-                *prev_mouse = mouse_position;
-            }
-        }
-    } else if(currTool == RECTANGLE) {
-        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            if(mouse_position.y > 50) {
-                int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
-                if(prev_data != NULL) {
-					framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled, Color::BLACK); // erase previous rectangle
-                    framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
-                    delete prev_data;
-                }
-                prev_data = data;
-            }
-        }
-    } else if(currTool == TRIANGLE) {
-        if(mouse_position.y > 50) {
-            switch(triCounter) {
-                case 0:
-                    break;
-                case 1:
+    if(lab == 1) {
+        if(currTool == PENCIL) {
+            if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                if(mouse_position.y > 50) {
                     if(prev_mouse->x > 0) {
-						framebuffer.DrawLineDDA(p0->x, p0->y, prev_mouse->x, prev_mouse->y, Color::BLACK); // erase previous line
-                        framebuffer.DrawLineDDA(p0->x, p0->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                        if((time-prev_time)<0.05) { // paint = lots of small lines
+                            framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                        }
                     }
                     *prev_mouse = mouse_position;
-                    break;
-                case 2:
+                    prev_time = time;
+                }
+            }
+        }
+        else if(currTool == ERASER) {
+            if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                if(mouse_position.y > 50) {
                     if(prev_mouse->x > 0) {
-						framebuffer.DrawTriangle(*p0, *p1, *prev_mouse, Color::BLACK, framebuffer.isFilled, Color::BLACK); // erase previous triangle
-                        framebuffer.DrawTriangle(*p0, *p1, mouse_position, framebuffer.defColor, framebuffer.isFilled, framebuffer.defColor);
+                        if((time-prev_time)<0.05) {
+                            framebuffer.DrawLineDDA(prev_mouse->x, prev_mouse->y, mouse_position.x, mouse_position.y, Color::BLACK);
+                        }
                     }
                     *prev_mouse = mouse_position;
-                    break;
-                default:
-                    break;
+                    prev_time = time;
+                }
             }
+        } else if(currTool == LINE) {
+            if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                if(mouse_position.y > 50) {
+                    if(prev_mouse->x > 0) {
+                        framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, prev_mouse->x, prev_mouse->y, Color::BLACK);
+                        framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                    }
+                    *prev_mouse = mouse_position;
+                }
+            }
+        } else if(currTool == RECTANGLE) {
+            if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+                if(mouse_position.y > 50) {
+                    int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
+                    if(prev_data != NULL) {
+                        framebuffer.DrawRect(prev_data[0], prev_data[1], prev_data[2], prev_data[3], Color::BLACK, framebuffer.defBorderWidth, framebuffer.isFilled, Color::BLACK); // erase previous rectangle
+                        framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
+                        delete prev_data;
+                    }
+                    prev_data = data;
+                }
+            }
+        } else if(currTool == TRIANGLE) {
+            if(mouse_position.y > 50) {
+                switch(triCounter) {
+                    case 0:
+                        break;
+                    case 1:
+                        if(prev_mouse->x > 0) {
+                            framebuffer.DrawLineDDA(p0->x, p0->y, prev_mouse->x, prev_mouse->y, Color::BLACK); // erase previous line
+                            framebuffer.DrawLineDDA(p0->x, p0->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+                        }
+                        *prev_mouse = mouse_position;
+                        break;
+                    case 2:
+                        if(prev_mouse->x > 0) {
+                            framebuffer.DrawTriangle(*p0, *p1, *prev_mouse, Color::BLACK, framebuffer.isFilled, Color::BLACK); // erase previous triangle
+                            framebuffer.DrawTriangle(*p0, *p1, mouse_position, framebuffer.defColor, framebuffer.isFilled, framebuffer.defColor);
+                        }
+                        *prev_mouse = mouse_position;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    } else if (lab == 2) {
+        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+            // ...
+        } else if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+            // ...
         }
     }
 }
