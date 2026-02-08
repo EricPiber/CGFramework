@@ -276,7 +276,10 @@ bool Image::LoadTGA(const char* filename, bool flip_y)
 	delete[] tgainfo->data;
 	delete tgainfo;
 
-	std::cout << "+++ File loaded: " << sfullPath.c_str() << std::endl;
+	if (strcmp(filename, "clear.tga") != 0) {
+		std::cout << "+++ File loaded: " << sfullPath.c_str() << std::endl;
+		std::cout << filename << std::endl;
+	}
 
 	return true;
 }
@@ -334,7 +337,9 @@ bool Image::SaveTGA(const char* filename)
 
 	delete[] bytes;
 
-	std::cout << "+++ File saved: " << fullPath.c_str() << std::endl;
+	if (strcmp(filename, "clear.tga") != 0) {
+		std::cout << "+++ File saved: " << fullPath.c_str() << std::endl;
+	}
 
 	return true;
 }

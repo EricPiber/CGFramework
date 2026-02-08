@@ -159,10 +159,13 @@ public:
 	Button butCyan;
 	Button butPink;
     
+    Matrix44* model_matrix0;
 	Matrix44 *model_matrix1;
     Matrix44 *model_matrix2;
     Matrix44 *model_matrix3;
     Matrix44 *model_matrix4;
+
+    Entity* entity0;
     Entity *entity1;
     Entity *entity2;
     Entity *entity3;
@@ -185,11 +188,42 @@ public:
 
 	// Other methods to control the app
 	void SetWindowSize(int width, int height) {
+		float old_w = this->window_width;
+		float old_h = this->window_height;
+
 		glViewport( 0,0, width, height );
 		this->window_width = width;
 		this->window_height = height;
 		this->framebuffer.Resize(width, height);
-        this->camera->SetAspectRatio((float)width/(float)height);
+        camera->SetAspectRatio((float)width / (float)height);
+
+        // ratios of pixel change
+        float sx = (float)width / old_w;
+        float sy = (float)height / old_h;
+
+        // current ortho box in world units
+        float oldLeft = camera->left;
+        float oldRight = camera->right;
+        float oldTop = camera->top;
+        float oldBottom = camera->bottom;
+
+        // keep same center
+        float cx = 0.5f * (oldLeft + oldRight);
+        float cy = 0.5f * (oldTop + oldBottom);
+
+        // scale half extents by resize ratios
+        float oldHalfW = 0.5f * (oldRight - oldLeft);
+        float oldHalfH = 0.5f * (oldTop - oldBottom);
+
+        float newHalfW = oldHalfW * sx;
+        float newHalfH = oldHalfH * sy;
+
+        // update ortho using scaled world extents
+        camera->SetOrthographic(cx - newHalfW, cx + newHalfW,
+            cy + newHalfH, cy - newHalfH,
+            camera->near_plane, camera->far_plane);
+        camera->UpdateProjectionMatrix();
+        camera->UpdateViewProjectionMatrix();
 	}
 
 	Vector2 GetWindowSize()

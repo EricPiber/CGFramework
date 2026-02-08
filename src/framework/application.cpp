@@ -76,31 +76,36 @@ void Application::Init(void)
         mesh2->LoadOBJ("meshes/anna.obj");
         Mesh* mesh3 = new Mesh();
         mesh3->LoadOBJ("meshes/cleo.obj");
-        
+
+        model_matrix0 = new Matrix44();
         model_matrix1 = new Matrix44();
         model_matrix2 = new Matrix44();
         model_matrix3 = new Matrix44();
         model_matrix4 = new Matrix44();
-        
+
+        Matrix44 mTrans0 = Matrix44();
         Matrix44 mTrans1 = Matrix44();
         Matrix44 mTrans2 = Matrix44();
         Matrix44 mTrans3 = Matrix44();
         Matrix44 mTrans4 = Matrix44();
         
-        mTrans1.MakeTranslationMatrix(0.8, 0.3, -0.3);
-        mTrans2.MakeTranslationMatrix(-0.8, 0.3, -0.3);
+		mTrans0.MakeTranslationMatrix(0, 0, -0.3);
+        mTrans1.MakeTranslationMatrix(0.7, 0.3, -0.3);
+        mTrans2.MakeTranslationMatrix(-0.7, 0.3, -0.3);
         mTrans3.MakeTranslationMatrix(0, -1, -0.3);
         mTrans4.MakeTranslationMatrix(0, 0.2, -0.3);
+
         
         Matrix44 mScale = Matrix44();
-        mScale.MakeScaleMatrix(0.8f, 0.8f, 0.8f);
+        mScale.MakeScaleMatrix(1.0f, 1.0f, 1.0f);
         
+		*model_matrix0 = mTrans0 * mScale;
         *model_matrix1 = mTrans1 * mScale;
         *model_matrix2 = mTrans2 * mScale;
         *model_matrix3 = mTrans3 * mScale;
         *model_matrix4 = mTrans4 * mScale;
         
-        
+		entity0 = new Entity(mesh2, model_matrix0, 0);
         entity1 = new Entity(mesh3, model_matrix1, 1);
         entity2 = new Entity(mesh2, model_matrix2, 2);
         entity3 = new Entity(mesh3, model_matrix3, 3);
@@ -145,9 +150,12 @@ void Application::Render(void)
         if (entities_initialized) {
             makeAction(CLEAR);
             entity1->Render(&framebuffer, camera, Color::RED);
-            entity2->Render(&framebuffer, camera, Color::WHITE);
+            entity2->Render(&framebuffer, camera, Color::YELLOW);
             entity3->Render(&framebuffer, camera, Color::BLUE);
             entity4->Render(&framebuffer, camera, Color::GREEN);
+        } else {
+            makeAction(CLEAR);
+            entity0->Render(&framebuffer, camera, Color::WHITE);
         }
     }
      
@@ -266,7 +274,7 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
             case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
             case SDLK_PLUS: framebuffer.defBorderWidth++; break; // increase border width
             case SDLK_MINUS: if(framebuffer.defBorderWidth > 0) {framebuffer.defBorderWidth--;} break; // decrease border width
-            case SDLK_1: makeAction(CLEAR); entities_initialized = false; entity1->Render(&framebuffer, camera, Color::WHITE); break;
+            case SDLK_1: makeAction(CLEAR); entities_initialized = false; break;
             case SDLK_2: makeAction(CLEAR); entities_initialized = !entities_initialized; break;
             case SDLK_f: framebuffer.isFilled = !framebuffer.isFilled; break; // toggle fill mode
             default: break;
