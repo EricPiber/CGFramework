@@ -488,44 +488,30 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
         }
     } else if (lab == 2) {
         if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            Vector2 delta = mouse_delta;
+            Vector2 d = mouse_delta;
+            float speed = 0.005f;
 
-            // Orbit settings
-            const float rotSpeed = 0.005f;      // radians per pixel (tune)
-            const float minPitch = -1.55f;      // ~ -89 degrees
-            const float maxPitch = 1.55f;      // ~ +89 degrees
+            // Vector from object to camera
+            Vector3 v = camera->eye - camera->center;
+            float r = v.Length();
 
-            // Vector from target (center) to camera (eye)
-            Vector3 offset = camera->eye - camera->center;
-            float radius = offset.Length();
-            if (radius < 1e-6f) radius = 1e-6f;
+            float yaw = atan2f(v.x, v.z);
+            float pitch = asinf(v.y / r);
 
-            // Convert to spherical angles:
-            // yaw   = rotation around world up (Y)
-            // pitch = up/down
-            float yaw = atan2f(offset.x, offset.z);
-            float pitch = asinf(offset.y / radius);
+            yaw += d.x * speed;
+            pitch -= d.y * speed;
+            pitch = clamp(pitch, -1.55f, 1.55f); // avoid flip
 
-            // Update angles from mouse movement
-            yaw += delta.x * rotSpeed;
-            pitch -= delta.y * rotSpeed;
+            camera->eye = camera->center + Vector3(
+                r * cosf(pitch) * sinf(yaw),
+                r * sinf(pitch),
+                r * cosf(pitch) * cosf(yaw)
+            );
 
-            // Clamp pitch to avoid flipping at the poles
-            pitch = clamp(pitch, minPitch, maxPitch);
-
-            // Rebuild offset from angles (Y is up)
-            offset.x = radius * cosf(pitch) * sinf(yaw);
-            offset.y = radius * sinf(pitch);
-            offset.z = radius * cosf(pitch) * cosf(yaw);
-
-            // New eye position, still looking at center
-            camera->eye = camera->center + offset;
-
-            // Keep a stable up vector (world up)
             camera->up = Vector3(0, 1, 0);
-
             camera->LookAt(camera->eye, camera->center, camera->up);
             camera->UpdateViewProjectionMatrix();
+
             /*
             Vector2 delta = mouse_delta;
 			camera->eye = camera->eye + Vector3(delta.x, -delta.y, 0) * 0.01; // move camera in x and y direction based on mouse movement
