@@ -119,7 +119,6 @@ void Application::Init(void)
         camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
-        zbuffer->Fill(1000000000.0f);
         
         
         //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
@@ -158,6 +157,7 @@ void Application::Render(void)
         butCyan.DrawButton(framebuffer);
         butPink.DrawButton(framebuffer);
     } else if (lab == 2) {
+        zbuffer->Fill(1000.0f);
         if (entities_initialized) {
             makeAction(CLEAR);
             entity1->Render(&framebuffer, camera, zbuffer);
@@ -169,7 +169,6 @@ void Application::Render(void)
             entity0->Render(&framebuffer, camera, zbuffer);
         }
     }
-     
     framebuffer.Render();
 }
 
