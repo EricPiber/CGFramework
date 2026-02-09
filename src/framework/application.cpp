@@ -119,7 +119,7 @@ void Application::Init(void)
         camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
-        zbuffer->Fill(1000.0f);
+        zbuffer->Fill(1000000.0f);
         
         
         //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
