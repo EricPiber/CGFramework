@@ -3,3 +3,4 @@ build/*
 .vscode/*
 res/*.tga
 !res/textures/
+.DS_Store
