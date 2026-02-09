@@ -532,9 +532,9 @@ Vector2 Image::GetScreenCoordinates(Vector3 v) {
 }
 
 bool Image::SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer) {
-    Vector2 p0_2 = Vector2(p0.x, p0.y);
-    Vector2 p1_2 = Vector2(p1.x, p1.y);
-    Vector2 p2_2 = Vector2(p2.x, p2.y);
+    Vector2 p0_2 = GetScreenCoordinates(p0);
+    Vector2 p1_2 = GetScreenCoordinates(p1);
+    Vector2 p2_2 = GetScreenCoordinates(p2);
     
     Vector2 pp0 = p0_2 - p;
     Vector2 pp1 = p1_2 - p;
