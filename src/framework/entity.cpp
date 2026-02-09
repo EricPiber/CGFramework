@@ -18,14 +18,6 @@ bool Entity::isInside(Vector3 v) {
         v.z >= -1.0f && v.z <= 1.0f;
 }
 
-Vector2 Entity::GetScreenCoordinates(Vector3 v, int width, int height) {
-    // Convert from clip space (-1 to 1) to screen space (0 to width/height)
-    float x = (v.x * 0.5f + 0.5f) * width;
-    float y = (v.y * 0.5f + 0.5f) * height;
-    //float y = (1.0f - (v.y * 0.5f + 0.5f)) * height;
-    return Vector2(x, y);
-}
-
 void Entity::Render(Image* framebuffer, Camera* camera, const Color& c) {
 	std::vector<Vector3> mesh_vert = mesh->GetVertices();
 	unsigned long num_vert = mesh_vert.size();
@@ -46,17 +38,26 @@ void Entity::Render(Image* framebuffer, Camera* camera, const Color& c) {
 		// clipping: if any of the vertices is outside the clip space, skip the triangle
         if (!isInside(mesh_vert[i]) || !isInside(mesh_vert[i+1]) || !isInside(mesh_vert[i+2]))
             continue;
-
+        
+        // from projection to screen, using depth
+        framebuffer->DrawTriangleInterpolated(mesh_vert[i], mesh_vert[i+1], mesh_vert[i+2], Color::RED, Color::GREEN, Color::BLUE);
+        
+        /*
 		// viewport transformation: from clip space to screen space
-		int w = framebuffer->width, h = framebuffer->height;
-		Vector2 p1 = GetScreenCoordinates(mesh_vert[i], w, h);
-        Vector2 p2 = GetScreenCoordinates(mesh_vert[i+1], w, h);
-        Vector2 p3 = GetScreenCoordinates(mesh_vert[i+2], w, h);
+		Vector2 p1 = framebuffer->GetScreenCoordinates(mesh_vert[i]);
+        Vector2 p2 = framebuffer->GetScreenCoordinates(mesh_vert[i+1]);
+        Vector2 p3 = framebuffer->GetScreenCoordinates(mesh_vert[i+2]);
 
-        // drawing lines of triangle
+        // drawing triangles
+        framebuffer->DrawTriangle(p1, p2, p3, c, true, c);
+         
+        // not filled
         framebuffer->DrawLineDDA((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, c);
         framebuffer->DrawLineDDA((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, c);
         framebuffer->DrawLineDDA((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, c);
+        
+        
+        */
     }
 }
 

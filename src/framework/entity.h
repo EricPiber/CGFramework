@@ -15,7 +15,6 @@ public:
     Entity(Mesh *mesh, Matrix44 *model_matrix, int id = 0);
 
     bool isInside(Vector3 v);
-    Vector2 GetScreenCoordinates(Vector3 v, int width, int height);
     void Render(Image* framebuffer, Camera* camera, const Color& c);
     void Update(float dt);
 };

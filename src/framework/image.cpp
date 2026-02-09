@@ -398,7 +398,7 @@ void Image::ScanLineDDA(int x0, int y0, int x1, int y1, std::vector<Cell>& table
     Vector2 v0(x0, y0);
     Vector2 v(dx/d, dy/d);
     
-    for(int i=0; i<d; i++) {
+    for(int i=0; i<=d; i++) {
         if(table[v0.y].minx == -1) {
             table[v0.y].minx = v0.x;
             table[v0.y].maxx = v0.x;
@@ -522,6 +522,100 @@ int* Image::CompRect(Vector2 v1, Vector2 v2) {
     data[3] = vs[3].y-vs[0].y;
     // x, y, width, height
     return data;
+}
+
+Vector2 Image::GetScreenCoordinates(Vector3 v) {
+    // Convert from clip space (-1 to 1) to screen space (0 to width/height)
+    float x = (v.x * 0.5f + 0.5f) * width;
+    float y = (v.y * 0.5f + 0.5f) * height;
+    return Vector2(x, y);
+}
+
+void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2) {
+    Vector2 pp0 = p0 - p;
+    Vector2 pp1 = p1 - p;
+    Vector2 pp2 = p2 - p;
+    Vector2 p0p1 = p1 - p0;
+    Vector2 p0p2 = p2 - p0;
+    
+    Vector3 pp0_3 = Vector3(pp0.x, pp0.y, 0);
+    Vector3 pp1_3 = Vector3(pp1.x, pp1.y, 0);
+    Vector3 pp2_3 = Vector3(pp2.x, pp2.y, 0);
+    Vector3 p0p1_3 = Vector3(p0p1.x, p0p1.y, 0);
+    Vector3 p0p2_3 = Vector3(p0p2.x, p0p2.y, 0);
+    
+    float a0 = ((pp1_3.Cross(pp2_3)).Length())/2;
+    float a1 = ((pp2_3.Cross(pp0_3)).Length())/2;
+    float a2 = ((pp0_3.Cross(pp1_3)).Length())/2;
+    float a012 = ((p0p1_3.Cross(p0p2_3)).Length())/2;
+    
+    float alpha = a0/a012;
+    float beta = a1/a012;
+    float gamma = a2/a012;
+    float sum = alpha + beta + gamma;
+    /*
+    alpha /= sum;
+    beta /= sum;
+    gamma /= sum;
+    */
+    Color c = (alpha*c0) + (beta*c1) + (gamma*c2);
+    //Vector2 p_screen = GetScreenCoordinates(Vector3(p.x, p.y, 0));
+    SetPixel(p.x, p.y, c);
+}
+
+void Image::DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Color& c0, const Color& c1, const Color& c2) {
+    // ...
+    Vector2 use0 = GetScreenCoordinates(p0);
+    Vector2 use1 = GetScreenCoordinates(p1);
+    Vector2 use2 = GetScreenCoordinates(p2);
+    
+    std::vector<Cell> table;
+    int tableSize = height;
+    table.resize(tableSize);
+    
+    ScanLineDDA(use0.x, use0.y, use1.x, use1.y, table);
+    ScanLineDDA(use0.x, use0.y, use2.x, use2.y, table);
+    ScanLineDDA(use1.x, use1.y, use2.x, use2.y, table);
+    
+    for(int i=0; i<tableSize; i++) {
+        if(table[i].minx != -1) {
+            for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                if((0 < j) && (j < width) && (0 < i) && (i < height)) {
+                    Vector2 use = Vector2(j, i);
+                    SetPixelInterpolated(use, use0, use1, use2, c0, c1, c2);
+                    //SetPixel(j, i, fillColor);
+                }
+            }
+        }
+    }
+    
+    
+    /*
+    std::vector<Cell> table;
+    int tableSize = height;
+    table.resize(tableSize);
+    
+    ScanLineDDA(use0->x, use0->y, use1->x, use1->y, table);
+    ScanLineDDA(use0->x, use0->y, use2->x, use2->y, table);
+    ScanLineDDA(use1->x, use1->y, use2->x, use2->y, table);
+    
+    if(isFilled) {
+        for(int i=0; i<tableSize; i++) {
+            if(table[i].minx != -1) {
+                for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                    if((0 < j) && (j < width) && (0 < i) && (i < height)) {
+                        SetPixel(j, i, fillColor);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Drawing borders of Triangle
+    DrawLineDDA(use0->x, use0->y, use1->x, use1->y, borderColor);
+    DrawLineDDA(use0->x, use0->y, use2->x, use2->y, borderColor);
+    DrawLineDDA(use1->x, use1->y, use2->x, use2->y, borderColor);
+     */
 }
  
 #ifndef IGNORE_LAMBDAS
