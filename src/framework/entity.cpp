@@ -18,7 +18,7 @@ bool Entity::isInside(Vector3 v) {
         v.z >= -1.0f && v.z <= 1.0f;
 }
 
-void Entity::Render(Image* framebuffer, Camera* camera, const Color& c) {
+void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
 	std::vector<Vector3> mesh_vert = mesh->GetVertices();
 	unsigned long num_vert = mesh_vert.size();
 	if (num_vert < 3) {  // not enough vertices to render a triangle
@@ -40,7 +40,7 @@ void Entity::Render(Image* framebuffer, Camera* camera, const Color& c) {
             continue;
         
         // from projection to screen, using depth
-        framebuffer->DrawTriangleInterpolated(mesh_vert[i], mesh_vert[i+1], mesh_vert[i+2], Color::RED, Color::GREEN, Color::BLUE);
+        framebuffer->DrawTriangleInterpolated(mesh_vert[i], mesh_vert[i+1], mesh_vert[i+2], Color::RED, Color::GREEN, Color::BLUE, zbuffer);
         
         /*
 		// viewport transformation: from clip space to screen space

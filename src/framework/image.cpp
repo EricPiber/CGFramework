@@ -531,6 +531,47 @@ Vector2 Image::GetScreenCoordinates(Vector3 v) {
     return Vector2(x, y);
 }
 
+bool Image::SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer) {
+    Vector2 p0_2 = Vector2(p0.x, p0.y);
+    Vector2 p1_2 = Vector2(p1.x, p1.y);
+    Vector2 p2_2 = Vector2(p2.x, p2.y);
+    
+    Vector2 pp0 = p0_2 - p;
+    Vector2 pp1 = p1_2 - p;
+    Vector2 pp2 = p2_2 - p;
+    Vector2 p0p1 = p1_2 - p0_2;
+    Vector2 p0p2 = p2_2 - p0_2;
+    
+    Vector3 pp0_3 = Vector3(pp0.x, pp0.y, 0);
+    Vector3 pp1_3 = Vector3(pp1.x, pp1.y, 0);
+    Vector3 pp2_3 = Vector3(pp2.x, pp2.y, 0);
+    Vector3 p0p1_3 = Vector3(p0p1.x, p0p1.y, 0);
+    Vector3 p0p2_3 = Vector3(p0p2.x, p0p2.y, 0);
+    
+    float a0 = ((pp1_3.Cross(pp2_3)).Length())/2;
+    float a1 = ((pp2_3.Cross(pp0_3)).Length())/2;
+    float a2 = ((pp0_3.Cross(pp1_3)).Length())/2;
+    float a012 = ((p0p1_3.Cross(p0p2_3)).Length())/2;
+    
+    float alpha = a0/a012;
+    float beta = a1/a012;
+    float gamma = a2/a012;
+    float sum = alpha + beta + gamma;
+    
+    alpha /= sum;
+    beta /= sum;
+    gamma /= sum;
+    
+    float pz = (alpha*p0.z) + (beta*p1.z) + (gamma*p2.z);
+    
+    if(zbuffer->GetPixel(p.x, p.y) > pz) {
+        zbuffer->SetPixel(p.x, p.y, pz);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2) {
     Vector2 pp0 = p0 - p;
     Vector2 pp1 = p1 - p;
@@ -553,22 +594,26 @@ void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vect
     float beta = a1/a012;
     float gamma = a2/a012;
     float sum = alpha + beta + gamma;
-    /*
+    
     alpha /= sum;
     beta /= sum;
     gamma /= sum;
-    */
+    
     Color c = (alpha*c0) + (beta*c1) + (gamma*c2);
     //Vector2 p_screen = GetScreenCoordinates(Vector3(p.x, p.y, 0));
     SetPixel(p.x, p.y, c);
 }
 
-void Image::DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Color& c0, const Color& c1, const Color& c2) {
+void Image::DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Color& c0, const Color& c1, const Color& c2, FloatImage* zbuffer) {
     // ...
     Vector2 use0 = GetScreenCoordinates(p0);
     Vector2 use1 = GetScreenCoordinates(p1);
     Vector2 use2 = GetScreenCoordinates(p2);
-    
+    /*
+    Vector3 z0 = Vector3(use0.x, use0.y, p0.z);
+    Vector3 z1 = Vector3(use1.x, use1.y, p1.z);
+    Vector3 z2 = Vector3(use2.x, use2.y, p2.z);
+    */
     std::vector<Cell> table;
     int tableSize = height;
     table.resize(tableSize);
@@ -582,40 +627,14 @@ void Image::DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const
             for(int j=table[i].minx; j<=table[i].maxx; j++) {
                 if((0 < j) && (j < width) && (0 < i) && (i < height)) {
                     Vector2 use = Vector2(j, i);
-                    SetPixelInterpolated(use, use0, use1, use2, c0, c1, c2);
+                    if(SetZInterpolated(use, p0, p1, p2, zbuffer)) {
+                        SetPixelInterpolated(use, use0, use1, use2, c0, c1, c2);
+                    }
                     //SetPixel(j, i, fillColor);
                 }
             }
         }
     }
-    
-    
-    /*
-    std::vector<Cell> table;
-    int tableSize = height;
-    table.resize(tableSize);
-    
-    ScanLineDDA(use0->x, use0->y, use1->x, use1->y, table);
-    ScanLineDDA(use0->x, use0->y, use2->x, use2->y, table);
-    ScanLineDDA(use1->x, use1->y, use2->x, use2->y, table);
-    
-    if(isFilled) {
-        for(int i=0; i<tableSize; i++) {
-            if(table[i].minx != -1) {
-                for(int j=table[i].minx; j<=table[i].maxx; j++) {
-                    if((0 < j) && (j < width) && (0 < i) && (i < height)) {
-                        SetPixel(j, i, fillColor);
-                    }
-                }
-            }
-        }
-    }
-    
-    // Drawing borders of Triangle
-    DrawLineDDA(use0->x, use0->y, use1->x, use1->y, borderColor);
-    DrawLineDDA(use0->x, use0->y, use2->x, use2->y, borderColor);
-    DrawLineDDA(use1->x, use1->y, use2->x, use2->y, borderColor);
-     */
 }
  
 #ifndef IGNORE_LAMBDAS

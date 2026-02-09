@@ -118,6 +118,10 @@ void Application::Init(void)
         camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
         camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         
+        zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
+        zbuffer->Fill(1000.0f);
+        
+        
         //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
         
     }
@@ -156,13 +160,13 @@ void Application::Render(void)
     } else if (lab == 2) {
         if (entities_initialized) {
             makeAction(CLEAR);
-            entity1->Render(&framebuffer, camera, Color::RED);
-            entity2->Render(&framebuffer, camera, Color::YELLOW);
-            entity3->Render(&framebuffer, camera, Color::BLUE);
-            entity4->Render(&framebuffer, camera, Color::GREEN);
+            entity1->Render(&framebuffer, camera, zbuffer);
+            entity2->Render(&framebuffer, camera, zbuffer);
+            entity3->Render(&framebuffer, camera, zbuffer);
+            entity4->Render(&framebuffer, camera, zbuffer);
         } else {
             makeAction(CLEAR);
-            entity0->Render(&framebuffer, camera, Color::WHITE);
+            entity0->Render(&framebuffer, camera, zbuffer);
         }
     }
      

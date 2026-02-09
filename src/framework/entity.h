@@ -15,6 +15,6 @@ public:
     Entity(Mesh *mesh, Matrix44 *model_matrix, int id = 0);
 
     bool isInside(Vector3 v);
-    void Render(Image* framebuffer, Camera* camera, const Color& c);
+    void Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer);
     void Update(float dt);
 };
