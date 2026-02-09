@@ -306,55 +306,71 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
 
 void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
 {
-	if (event.button == SDL_BUTTON_LEFT) {
-        if (butClear.IsMouseInside(mouse_position)) {
-            makeAction(CLEAR);
-        } else if (butLoad.IsMouseInside(mouse_position)) {
-            makeAction(LOAD);
-        } else if (butSave.IsMouseInside(mouse_position)) {
-            makeAction(SAVE);
-        } else if (butPencil.IsMouseInside(mouse_position)) {
-            makeAction(PENCIL);
-        } else if (butEraser.IsMouseInside(mouse_position)) {
-            makeAction(ERASER);
-        } else if (butLine.IsMouseInside(mouse_position)) {
-            makeAction(LINE);
-        } else if (butRectangle.IsMouseInside(mouse_position)) {
-            makeAction(RECTANGLE);
-        } else if (butTriangle.IsMouseInside(mouse_position)) {
-            makeAction(TRIANGLE);
-        } else if (butBlack.IsMouseInside(mouse_position)) {
-            makeAction(BLACK);
-        } else if (butWhite.IsMouseInside(mouse_position)) {
-            makeAction(WHITE);
-        } else if (butRed.IsMouseInside(mouse_position)) {
-            makeAction(RED);
-        } else if (butGreen.IsMouseInside(mouse_position)) {
-            makeAction(GREEN);
-        } else if (butBlue.IsMouseInside(mouse_position)) {
-            makeAction(BLUE);
-        } else if (butYellow.IsMouseInside(mouse_position)) {
-            makeAction(YELLOW);
-        } else if (butCyan.IsMouseInside(mouse_position)) {
-            makeAction(CYAN);
-        } else if (butPink.IsMouseInside(mouse_position)) {
-            makeAction(PINK);
-        }
-        if (currTool == LINE) {
-            *orig_mouse = mouse_position; // save first point
-            framebuffer.SaveTGA("temp.tga");
-        }
-        else if (currTool == RECTANGLE) {
-            *orig_mouse = mouse_position;
-            framebuffer.SaveTGA("temp.tga");
-        }
-        else if (currTool == TRIANGLE) {
-            if(mouse_position.y > 50) {
-                switch(triCounter) {
+    if (lab == 1) {
+        if (event.button == SDL_BUTTON_LEFT) {
+            if (butClear.IsMouseInside(mouse_position)) {
+                makeAction(CLEAR);
+            }
+            else if (butLoad.IsMouseInside(mouse_position)) {
+                makeAction(LOAD);
+            }
+            else if (butSave.IsMouseInside(mouse_position)) {
+                makeAction(SAVE);
+            }
+            else if (butPencil.IsMouseInside(mouse_position)) {
+                makeAction(PENCIL);
+            }
+            else if (butEraser.IsMouseInside(mouse_position)) {
+                makeAction(ERASER);
+            }
+            else if (butLine.IsMouseInside(mouse_position)) {
+                makeAction(LINE);
+            }
+            else if (butRectangle.IsMouseInside(mouse_position)) {
+                makeAction(RECTANGLE);
+            }
+            else if (butTriangle.IsMouseInside(mouse_position)) {
+                makeAction(TRIANGLE);
+            }
+            else if (butBlack.IsMouseInside(mouse_position)) {
+                makeAction(BLACK);
+            }
+            else if (butWhite.IsMouseInside(mouse_position)) {
+                makeAction(WHITE);
+            }
+            else if (butRed.IsMouseInside(mouse_position)) {
+                makeAction(RED);
+            }
+            else if (butGreen.IsMouseInside(mouse_position)) {
+                makeAction(GREEN);
+            }
+            else if (butBlue.IsMouseInside(mouse_position)) {
+                makeAction(BLUE);
+            }
+            else if (butYellow.IsMouseInside(mouse_position)) {
+                makeAction(YELLOW);
+            }
+            else if (butCyan.IsMouseInside(mouse_position)) {
+                makeAction(CYAN);
+            }
+            else if (butPink.IsMouseInside(mouse_position)) {
+                makeAction(PINK);
+            }
+            if (currTool == LINE) {
+                *orig_mouse = mouse_position; // save first point
+                framebuffer.SaveTGA("temp.tga");
+            }
+            else if (currTool == RECTANGLE) {
+                *orig_mouse = mouse_position;
+                framebuffer.SaveTGA("temp.tga");
+            }
+            else if (currTool == TRIANGLE) {
+                if (mouse_position.y > 50) {
+                    switch (triCounter) {
                     case 0:
                         *p0 = mouse_position;
                         framebuffer.SaveTGA("temp.tga");
-						triCounter = 1; // number of points clicked
+                        triCounter = 1; // number of points clicked
                         break;
                     case 1:
                         *p1 = mouse_position;
@@ -369,28 +385,31 @@ void Application::OnMouseButtonDown( SDL_MouseButtonEvent event )
                         break;
                     default:
                         break;
+                    }
                 }
             }
         }
-	}
+    }
 }
 
 void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
 {
-	if (event.button == SDL_BUTTON_LEFT) {
-        if(currTool == LINE) {
-            loadTGA = true;
-            framebuffer.LoadTGA("temp.tga", true);
-            framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+    if (lab == 1) {
+        if (event.button == SDL_BUTTON_LEFT) {
+            if (currTool == LINE) {
+                loadTGA = true;
+                framebuffer.LoadTGA("temp.tga", true);
+                framebuffer.DrawLineDDA(orig_mouse->x, orig_mouse->y, mouse_position.x, mouse_position.y, framebuffer.defColor);
+            }
+            else if (currTool == RECTANGLE) {
+                loadTGA = true;
+                framebuffer.LoadTGA("temp.tga", true);
+                int* data = framebuffer.CompRect(*orig_mouse, mouse_position);
+                framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
+                delete data;
+            }
         }
-        else if(currTool == RECTANGLE) {
-            loadTGA = true;
-            framebuffer.LoadTGA("temp.tga", true);
-            int *data = framebuffer.CompRect(*orig_mouse, mouse_position);
-            framebuffer.DrawRect(data[0], data[1], data[2], data[3], framebuffer.defColor, framebuffer.defBorderWidth, framebuffer.isFilled, framebuffer.defColor);
-            delete data;
-        }
-	}
+    }
 }
 
 void Application::OnMouseMove(SDL_MouseButtonEvent event)
@@ -469,9 +488,12 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
         }
     } else if (lab == 2) {
         if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-            // ...
+            Vector2 delta = mouse_delta;
+			camera->UpdateViewProjectionMatrix();
         } else if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
-            // ...
+            Vector2 delta = mouse_delta;
+			camera->Move(Vector3(-delta.x, delta.y, camera->center.z) * 0.01f); // move camera in x and y direction based on mouse movement
+			camera->UpdateViewProjectionMatrix();
         }
     }
 }
