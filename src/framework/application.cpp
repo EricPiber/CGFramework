@@ -72,10 +72,16 @@ void Application::Init(void)
         
         Mesh *mesh1 = new Mesh();
         mesh1->LoadOBJ("meshes/lee.obj");
+        Image *texture1 = new Image();
+        texture1->LoadTGA("textures/lee_color_specular.tga", true);
         Mesh* mesh2 = new Mesh();
         mesh2->LoadOBJ("meshes/anna.obj");
+        Image *texture2 = new Image();
+        texture2->LoadTGA("textures/anna_color_specular.tga", true);
         Mesh* mesh3 = new Mesh();
         mesh3->LoadOBJ("meshes/cleo.obj");
+        Image *texture3 = new Image();
+        texture3->LoadTGA("textures/cleo_color_specular.tga", true);
 
         model_matrix0 = new Matrix44();
         model_matrix1 = new Matrix44();
@@ -107,11 +113,11 @@ void Application::Init(void)
         *model_matrix3 = mTrans3 * mScale;
         *model_matrix4 = mTrans4 * mScale;
         
-		entity0 = new Entity(mesh2, model_matrix0, 0);
-        entity1 = new Entity(mesh3, model_matrix1, 1);
-        entity2 = new Entity(mesh2, model_matrix2, 2);
-        entity3 = new Entity(mesh3, model_matrix3, 3);
-        entity4 = new Entity(mesh1, model_matrix4, 4);
+		entity0 = new Entity(mesh2, model_matrix0, texture2, eRenderMode::TRIANGLES_INTERPOLATED, 0);
+        entity1 = new Entity(mesh3, model_matrix1, texture3, eRenderMode::POINTCLOUD, 1);
+        entity2 = new Entity(mesh2, model_matrix2, texture2, eRenderMode::WIREFRAME, 2);
+        entity3 = new Entity(mesh3, model_matrix3, texture3, eRenderMode::TRIANGLES, 3);
+        entity4 = new Entity(mesh1, model_matrix4, texture1, eRenderMode::TRIANGLES_INTERPOLATED, 4);
         
         camera = new Camera();
         // for perspective projection:
@@ -157,7 +163,7 @@ void Application::Render(void)
         butCyan.DrawButton(framebuffer);
         butPink.DrawButton(framebuffer);
     } else if (lab == 2) {
-        zbuffer->Fill(1000.0f);
+        zbuffer->Fill(10000.0f);
         if (entities_initialized) {
             makeAction(CLEAR);
             entity1->Render(&framebuffer, camera, zbuffer);
@@ -302,6 +308,9 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
             case SDLK_f: camProp = CAM_FAR; break;
 			case SDLK_n: camProp = CAM_NEAR; break;
 			case SDLK_v: camProp = CAM_FOV; break;
+            case SDLK_t: framebuffer.meshT_colorF = !framebuffer.meshT_colorF; break;
+            case SDLK_z: framebuffer.occlusions = !framebuffer.occlusions; break;
+            case SDLK_c: framebuffer.interpolUVsT_colorF = !framebuffer.interpolUVsT_colorF; break;
             default: break;
         }
     }

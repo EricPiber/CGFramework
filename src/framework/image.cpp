@@ -524,6 +524,10 @@ int* Image::CompRect(Vector2 v1, Vector2 v2) {
     return data;
 }
 
+Vector2 Image::GetTextureCoordinates(Vector2 v) {
+    return Vector2(v.x*width, v.y*height);
+}
+
 Vector2 Image::GetScreenCoordinates(Vector3 v) {
     // Convert from clip space (-1 to 1) to screen space (0 to width/height)
     float x = (v.x * 0.5f + 0.5f) * width;
@@ -531,48 +535,8 @@ Vector2 Image::GetScreenCoordinates(Vector3 v) {
     return Vector2(x, y);
 }
 
-bool Image::SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer) {
-    Vector2 p0_2 = GetScreenCoordinates(p0);
-    Vector2 p1_2 = GetScreenCoordinates(p1);
-    Vector2 p2_2 = GetScreenCoordinates(p2);
-    
-    Vector2 pp0 = p0_2 - p;
-    Vector2 pp1 = p1_2 - p;
-    Vector2 pp2 = p2_2 - p;
-    Vector2 p0p1 = p1_2 - p0_2;
-    Vector2 p0p2 = p2_2 - p0_2;
-    
-    Vector3 pp0_3 = Vector3(pp0.x, pp0.y, 0);
-    Vector3 pp1_3 = Vector3(pp1.x, pp1.y, 0);
-    Vector3 pp2_3 = Vector3(pp2.x, pp2.y, 0);
-    Vector3 p0p1_3 = Vector3(p0p1.x, p0p1.y, 0);
-    Vector3 p0p2_3 = Vector3(p0p2.x, p0p2.y, 0);
-    
-    float a0 = ((pp1_3.Cross(pp2_3)).Length())/2;
-    float a1 = ((pp2_3.Cross(pp0_3)).Length())/2;
-    float a2 = ((pp0_3.Cross(pp1_3)).Length())/2;
-    float a012 = ((p0p1_3.Cross(p0p2_3)).Length())/2;
-    
-    float alpha = a0/a012;
-    float beta = a1/a012;
-    float gamma = a2/a012;
-    float sum = alpha + beta + gamma;
-    
-    alpha /= sum;
-    beta /= sum;
-    gamma /= sum;
-    
-    float pz = (alpha*p0.z) + (beta*p1.z) + (gamma*p2.z);
-    
-    if(zbuffer->GetPixel(p.x, p.y) > pz) {
-        zbuffer->SetPixel(p.x, p.y, pz);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2) {
+Vector3 Image::GetABG(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2) {
+    // Get Alpha Beta Gamma components
     Vector2 pp0 = p0 - p;
     Vector2 pp1 = p1 - p;
     Vector2 pp2 = p2 - p;
@@ -598,44 +562,165 @@ void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vect
     alpha /= sum;
     beta /= sum;
     gamma /= sum;
+    return Vector3(alpha, beta, gamma);
+}
+
+void Image::SetUVInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, Image* texture, const Vector2& uv0, const Vector2& uv1, const Vector2& uv2) {
+    Vector2 text0 = texture->GetTextureCoordinates(uv0);
+    Vector2 text1 = texture->GetTextureCoordinates(uv1);
+    Vector2 text2 = texture->GetTextureCoordinates(uv2);
     
-    Color c = (alpha*c0) + (beta*c1) + (gamma*c2);
+    Vector3 abg = GetABG(p, p0, p1, p2);
+    
+    text0 *= abg.x;
+    text1 *= abg.y;
+    text2 *= abg.z;
+    
+    Vector2 uv = text0 + text1 + text2;
+    
+    Color c = texture->GetPixel(uv.x, uv.y);
+    
+    SetPixel(p.x, p.y, c);
+}
+
+bool Image::SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer) {
+    Vector2 p0_2 = GetScreenCoordinates(p0);
+    Vector2 p1_2 = GetScreenCoordinates(p1);
+    Vector2 p2_2 = GetScreenCoordinates(p2);
+    
+    Vector3 abg = GetABG(p, p0_2, p1_2, p2_2);
+    
+    float pz = (abg.x*p0.z) + (abg.y*p1.z) + (abg.z*p2.z);
+    
+    if(zbuffer->GetPixel(p.x, p.y) > pz) {
+        zbuffer->SetPixel(p.x, p.y, pz);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2) {
+    Vector3 abg = GetABG(p, p0, p1, p2);
+    
+    Color c = (abg.x*c0) + (abg.y*c1) + (abg.z*c2);
     //Vector2 p_screen = GetScreenCoordinates(Vector3(p.x, p.y, 0));
     SetPixel(p.x, p.y, c);
 }
 
-void Image::DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Color& c0, const Color& c1, const Color& c2, FloatImage* zbuffer) {
-    // ...
-    Vector2 use0 = GetScreenCoordinates(p0);
-    Vector2 use1 = GetScreenCoordinates(p1);
-    Vector2 use2 = GetScreenCoordinates(p2);
-    /*
-    Vector3 z0 = Vector3(use0.x, use0.y, p0.z);
-    Vector3 z1 = Vector3(use1.x, use1.y, p1.z);
-    Vector3 z2 = Vector3(use2.x, use2.y, p2.z);
-    */
+void Image::DrawTriangleInterpolated(const sTriangleInfo& triangle, FloatImage* zbuffer) {
+
+    Vector2 s0 = GetScreenCoordinates(triangle.p0);
+    Vector2 s1 = GetScreenCoordinates(triangle.p1);
+    Vector2 s2 = GetScreenCoordinates(triangle.p2);
+    
     std::vector<Cell> table;
     int tableSize = height;
     table.resize(tableSize);
     
-    ScanLineDDA(use0.x, use0.y, use1.x, use1.y, table);
-    ScanLineDDA(use0.x, use0.y, use2.x, use2.y, table);
-    ScanLineDDA(use1.x, use1.y, use2.x, use2.y, table);
+    ScanLineDDA(s0.x, s0.y, s1.x, s1.y, table);
+    ScanLineDDA(s0.x, s0.y, s2.x, s2.y, table);
+    ScanLineDDA(s1.x, s1.y, s2.x, s2.y, table);
     
     for(int i=0; i<tableSize; i++) {
         if(table[i].minx != -1) {
             for(int j=table[i].minx; j<=table[i].maxx; j++) {
                 if((0 < j) && (j < width) && (0 < i) && (i < height)) {
-                    Vector2 use = Vector2(j, i);
-                    if(SetZInterpolated(use, p0, p1, p2, zbuffer)) {
-                        SetPixelInterpolated(use, use0, use1, use2, c0, c1, c2);
+                    Vector2 s = Vector2(j, i);
+                    if(SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                        SetUVInterpolated(s, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+                        //SetPixelInterpolated(s, s0, s1, s2, triangle.c0, triangle.c1, triangle.c2);
                     }
-                    //SetPixel(j, i, fillColor);
                 }
             }
         }
     }
 }
+
+void Image::DrawPointcloud(const sTriangleInfo& triangle, FloatImage* zbuffer) {
+    Vector2 s0 = GetScreenCoordinates(triangle.p0);
+    Vector2 s1 = GetScreenCoordinates(triangle.p1);
+    Vector2 s2 = GetScreenCoordinates(triangle.p2);
+    
+    if(SetZInterpolated(s0, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+        SetUVInterpolated(s0, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+    }
+    if(SetZInterpolated(s1, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+        SetUVInterpolated(s1, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+    }
+    if(SetZInterpolated(s2, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+        SetUVInterpolated(s2, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+    }
+}
+
+void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
+    Vector2 s0 = GetScreenCoordinates(triangle.p0);
+    Vector2 s1 = GetScreenCoordinates(triangle.p1);
+    Vector2 s2 = GetScreenCoordinates(triangle.p2);
+    
+    Vector2 s[3] = {s0, s1, s2};
+    
+    for(int i=0; i<3; i++) {
+        int j = i+1;
+        if(j==3) {j=0;}
+        float dx = s[j].x-s[i].x;
+        float dy = s[j].y-s[i].y;
+        int d = std::max(abs(dx), abs(dy));
+        
+        Vector2 v0(s[i].x, s[i].y);
+        Vector2 v(dx/d, dy/d);
+        
+        for(int i=0; i<d; i++) {
+            if(SetZInterpolated(v0, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                SetUVInterpolated(v0, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+            }
+            v0 += v;
+        }
+    }
+}
+
+void Image::DrawTriangles(const sTriangleInfo& triangle, FloatImage* zbuffer) {
+    // computing color of triangle
+    Vector2 text0 = triangle.texture->GetTextureCoordinates(triangle.uv0);
+    Vector2 text1 = triangle.texture->GetTextureCoordinates(triangle.uv1);
+    Vector2 text2 = triangle.texture->GetTextureCoordinates(triangle.uv2);
+    
+    float alpha = 1.0/3.0;
+    
+    text0 *= alpha;
+    text1 *= alpha;
+    text2 *= alpha;
+    
+    Vector2 uv = text0 + text1 + text2;
+    
+    Color c = triangle.texture->GetPixel(uv.x, uv.y);
+        
+    Vector2 s0 = GetScreenCoordinates(triangle.p0);
+    Vector2 s1 = GetScreenCoordinates(triangle.p1);
+    Vector2 s2 = GetScreenCoordinates(triangle.p2);
+    
+    std::vector<Cell> table;
+    int tableSize = height;
+    table.resize(tableSize);
+    
+    ScanLineDDA(s0.x, s0.y, s1.x, s1.y, table);
+    ScanLineDDA(s0.x, s0.y, s2.x, s2.y, table);
+    ScanLineDDA(s1.x, s1.y, s2.x, s2.y, table);
+    
+    for(int i=0; i<tableSize; i++) {
+        if(table[i].minx != -1) {
+            for(int j=table[i].minx; j<=table[i].maxx; j++) {
+                if((0 < j) && (j < width) && (0 < i) && (i < height)) {
+                    Vector2 s = Vector2(j, i);
+                    if(SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                        SetPixel(s.x, s.y, c);
+                    }
+                }
+            }
+        }
+    }
+}
+
  
 #ifndef IGNORE_LAMBDAS
 

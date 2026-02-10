@@ -19,6 +19,20 @@
 class FloatImage;
 class Entity;
 class Camera;
+class Image;
+
+struct sTriangleInfo {
+    Vector3 p0;
+    Vector3 p1;
+    Vector3 p2;
+    Color c0;
+    Color c1;
+    Color c2;
+    Vector2 uv0;
+    Vector2 uv1;
+    Vector2 uv2;
+    Image *texture;
+};
 
 // A matrix of pixels
 class Image
@@ -39,6 +53,10 @@ public:
     int defBorderWidth = 0;
     bool isFilled = false;
     Color defColor = Color::WHITE;
+    
+    bool meshT_colorF = true;
+    bool occlusions = true;
+    bool interpolUVsT_colorF = true;
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel
 
@@ -100,10 +118,16 @@ public:
     Vector2* makeInside(const Vector2& p);
     int *CompRect(Vector2 v1, Vector2 v2);
     
+    Vector2 GetTextureCoordinates(Vector2 v);
     Vector2 GetScreenCoordinates(Vector3 v);
+    Vector3 GetABG(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2);
+    void SetUVInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, Image* texture, const Vector2& uv0, const Vector2& uv1, const Vector2& uv2);
     bool SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer);
     void SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2);
-    void DrawTriangleInterpolated(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Color& c0, const Color& c1, const Color& c2, FloatImage* zbuffer);
+    void DrawTriangleInterpolated(const sTriangleInfo& triangle, FloatImage* zbuffer);
+    void DrawPointcloud(const sTriangleInfo& triangle, FloatImage* zbuffer);
+    void DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer);
+    void DrawTriangles(const sTriangleInfo& triangle, FloatImage* zbuffer);
 
 	// Used to easy code
 	#ifndef IGNORE_LAMBDAS

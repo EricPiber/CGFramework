@@ -3,12 +3,15 @@
 Entity::Entity() {
     mesh = NULL;
     model_matrix = NULL;
+    texture = NULL;
     animationId = 0;
 }
 
-Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, int id) {
+Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, Image* texture, eRenderMode mode, int id) {
     this->mesh = mesh;
     this->model_matrix = model_matrix;
+    this->texture = texture;
+    this->mode = mode;
     this->animationId = id;
 }
 
@@ -20,6 +23,7 @@ bool Entity::isInside(Vector3 v) {
 
 void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
 	std::vector<Vector3> mesh_vert = mesh->GetVertices();
+    std::vector<Vector2> mesh_uv = mesh->GetUVs();
 	unsigned long num_vert = mesh_vert.size();
 	if (num_vert < 3) {  // not enough vertices to render a triangle
         return;
@@ -39,8 +43,21 @@ void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
         if (!isInside(mesh_vert[i]) || !isInside(mesh_vert[i+1]) || !isInside(mesh_vert[i+2]))
             continue;
         
+        // filling struct
+        sTriangleInfo triangle{mesh_vert[i], mesh_vert[i+1], mesh_vert[i+2], Color::RED, Color::GREEN, Color::BLUE, mesh_uv[i], mesh_uv[i+1], mesh_uv[i+2], texture};
+        
+        // rendering depending on entity's mode
+        if(mode == eRenderMode::POINTCLOUD) {
+            framebuffer->DrawPointcloud(triangle, zbuffer);
+        } else if(mode == eRenderMode::WIREFRAME) {
+            framebuffer->DrawWireframe(triangle, zbuffer);
+        } else if(mode == eRenderMode::TRIANGLES) {
+            framebuffer->DrawTriangles(triangle, zbuffer);
+        } else if(mode == eRenderMode::TRIANGLES_INTERPOLATED) {
+            framebuffer->DrawTriangleInterpolated(triangle, zbuffer);
+        }
+        
         // from projection to screen, using depth
-        framebuffer->DrawTriangleInterpolated(mesh_vert[i], mesh_vert[i+1], mesh_vert[i+2], Color::RED, Color::GREEN, Color::BLUE, zbuffer);
         
         /*
 		// viewport transformation: from clip space to screen space
