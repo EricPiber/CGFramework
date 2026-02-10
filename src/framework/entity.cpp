@@ -22,6 +22,16 @@ bool Entity::isInside(Vector3 v) {
 }
 
 void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
+    if(framebuffer->interpolUVsT_colorF) {
+        if(mode == eRenderMode::TRIANGLES) {
+            mode = eRenderMode::TRIANGLES_INTERPOLATED;
+        }
+    } else {
+        if(mode == eRenderMode::TRIANGLES_INTERPOLATED) {
+            mode = eRenderMode::TRIANGLES;
+        }
+    }
+    
 	std::vector<Vector3> mesh_vert = mesh->GetVertices();
     std::vector<Vector2> mesh_uv = mesh->GetUVs();
 	unsigned long num_vert = mesh_vert.size();
@@ -56,25 +66,6 @@ void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
         } else if(mode == eRenderMode::TRIANGLES_INTERPOLATED) {
             framebuffer->DrawTriangleInterpolated(triangle, zbuffer);
         }
-        
-        // from projection to screen, using depth
-        
-        /*
-		// viewport transformation: from clip space to screen space
-		Vector2 p1 = framebuffer->GetScreenCoordinates(mesh_vert[i]);
-        Vector2 p2 = framebuffer->GetScreenCoordinates(mesh_vert[i+1]);
-        Vector2 p3 = framebuffer->GetScreenCoordinates(mesh_vert[i+2]);
-
-        // drawing triangles
-        framebuffer->DrawTriangle(p1, p2, p3, c, true, c);
-         
-        // not filled
-        framebuffer->DrawLineDDA((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, c);
-        framebuffer->DrawLineDDA((int)p2.x, (int)p2.y, (int)p3.x, (int)p3.y, c);
-        framebuffer->DrawLineDDA((int)p3.x, (int)p3.y, (int)p1.x, (int)p1.y, c);
-        
-        
-        */
     }
 }
 

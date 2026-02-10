@@ -121,6 +121,7 @@ public:
     Vector2 GetTextureCoordinates(Vector2 v);
     Vector2 GetScreenCoordinates(Vector3 v);
     Vector3 GetABG(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2);
+    Color GetPlainColor(const sTriangleInfo& triangle);
     void SetUVInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, Image* texture, const Vector2& uv0, const Vector2& uv1, const Vector2& uv2);
     bool SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3& p1, const Vector3& p2, FloatImage* zbuffer);
     void SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, const Color& c0, const Color& c1, const Color& c2);

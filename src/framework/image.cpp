@@ -565,6 +565,29 @@ Vector3 Image::GetABG(const Vector2& p, const Vector2& p0, const Vector2& p1, co
     return Vector3(alpha, beta, gamma);
 }
 
+Color Image::GetPlainColor(const sTriangleInfo& triangle) {
+    float alpha = 1.0/3.0;
+    Color c;
+
+    if(meshT_colorF) {
+        Vector2 text0 = triangle.texture->GetTextureCoordinates(triangle.uv0);
+        Vector2 text1 = triangle.texture->GetTextureCoordinates(triangle.uv1);
+        Vector2 text2 = triangle.texture->GetTextureCoordinates(triangle.uv2);
+                
+        text0 *= alpha;
+        text1 *= alpha;
+        text2 *= alpha;
+        
+        Vector2 uv = text0 + text1 + text2;
+        
+        c = triangle.texture->GetPixel(uv.x, uv.y);
+    } else {
+        c = (alpha*triangle.c0) + (alpha*triangle.c1) + (alpha*triangle.c2);
+    }
+    return c;
+}
+
+
 void Image::SetUVInterpolated(const Vector2& p, const Vector2& p0, const Vector2& p1, const Vector2& p2, Image* texture, const Vector2& uv0, const Vector2& uv1, const Vector2& uv2) {
     Vector2 text0 = texture->GetTextureCoordinates(uv0);
     Vector2 text1 = texture->GetTextureCoordinates(uv1);
@@ -627,9 +650,12 @@ void Image::DrawTriangleInterpolated(const sTriangleInfo& triangle, FloatImage* 
             for(int j=table[i].minx; j<=table[i].maxx; j++) {
                 if((0 < j) && (j < width) && (0 < i) && (i < height)) {
                     Vector2 s = Vector2(j, i);
-                    if(SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-                        SetUVInterpolated(s, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
-                        //SetPixelInterpolated(s, s0, s1, s2, triangle.c0, triangle.c1, triangle.c2);
+                    if((!occlusions) || SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                        if(meshT_colorF) {
+                            SetUVInterpolated(s, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+                        } else {
+                            SetPixelInterpolated(s, s0, s1, s2, triangle.c0, triangle.c1, triangle.c2);
+                        }
                     }
                 }
             }
@@ -642,14 +668,27 @@ void Image::DrawPointcloud(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     Vector2 s1 = GetScreenCoordinates(triangle.p1);
     Vector2 s2 = GetScreenCoordinates(triangle.p2);
     
-    if(SetZInterpolated(s0, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-        SetUVInterpolated(s0, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+    Vector2 s[3] = {s0, s1, s2};
+    Color c[3] = {triangle.c0, triangle.c1, triangle.c2};
+    
+    Color cPlain;
+    
+    if(!interpolUVsT_colorF) {
+        cPlain = GetPlainColor(triangle);
     }
-    if(SetZInterpolated(s1, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-        SetUVInterpolated(s1, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
-    }
-    if(SetZInterpolated(s2, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-        SetUVInterpolated(s2, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+    
+    for(int i=0; i<3; i++) {
+        if((!occlusions) || SetZInterpolated(s[i], triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+            if(interpolUVsT_colorF) {
+                if(meshT_colorF) {
+                    SetUVInterpolated(s[i], s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+                } else {
+                    SetPixel(s[i].x, s[i].y, c[i]);
+                }
+            } else {
+                SetPixel(s[i].x, s[i].y, cPlain);
+            }
+        }
     }
 }
 
@@ -659,6 +698,12 @@ void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     Vector2 s2 = GetScreenCoordinates(triangle.p2);
     
     Vector2 s[3] = {s0, s1, s2};
+    //Color c[3] = {triangle.c0, triangle.c1, triangle.c2};
+    Color cPlain;
+    
+    if(!interpolUVsT_colorF) {
+        cPlain = GetPlainColor(triangle);
+    }
     
     for(int i=0; i<3; i++) {
         int j = i+1;
@@ -671,8 +716,16 @@ void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
         Vector2 v(dx/d, dy/d);
         
         for(int i=0; i<d; i++) {
-            if(SetZInterpolated(v0, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-                SetUVInterpolated(v0, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+            if((!occlusions) || SetZInterpolated(v0, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                if(interpolUVsT_colorF) {
+                    if(meshT_colorF) {
+                        SetUVInterpolated(v0, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
+                    } else {
+                        SetPixelInterpolated(v0, s0, s1, s2, triangle.c0, triangle.c1, triangle.c2);
+                    }
+                } else {
+                    SetPixel(v0.x, v0.y, cPlain);
+                }
             }
             v0 += v;
         }
@@ -681,19 +734,7 @@ void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
 
 void Image::DrawTriangles(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     // computing color of triangle
-    Vector2 text0 = triangle.texture->GetTextureCoordinates(triangle.uv0);
-    Vector2 text1 = triangle.texture->GetTextureCoordinates(triangle.uv1);
-    Vector2 text2 = triangle.texture->GetTextureCoordinates(triangle.uv2);
-    
-    float alpha = 1.0/3.0;
-    
-    text0 *= alpha;
-    text1 *= alpha;
-    text2 *= alpha;
-    
-    Vector2 uv = text0 + text1 + text2;
-    
-    Color c = triangle.texture->GetPixel(uv.x, uv.y);
+    Color c = GetPlainColor(triangle);
         
     Vector2 s0 = GetScreenCoordinates(triangle.p0);
     Vector2 s1 = GetScreenCoordinates(triangle.p1);
@@ -712,7 +753,7 @@ void Image::DrawTriangles(const sTriangleInfo& triangle, FloatImage* zbuffer) {
             for(int j=table[i].minx; j<=table[i].maxx; j++) {
                 if((0 < j) && (j < width) && (0 < i) && (i < height)) {
                     Vector2 s = Vector2(j, i);
-                    if(SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
+                    if((!occlusions) || SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
                         SetPixel(s.x, s.y, c);
                     }
                 }
