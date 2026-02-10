@@ -181,6 +181,7 @@ public:
     
     bool entities_initialized = false;
 	currProperty camProp;
+    bool camPerspective = false;
     
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);

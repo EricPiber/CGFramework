@@ -121,8 +121,10 @@ void Application::Init(void)
         
         camera = new Camera();
         // for perspective projection:
-        camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
-        camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        if(camPerspective) {
+            camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
+            camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        }
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
         
