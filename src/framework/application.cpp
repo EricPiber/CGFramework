@@ -125,6 +125,11 @@ void Application::Init(void)
             camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
             camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         }
+        else {
+            // for orthographic projection:
+            camera->SetOrthographic(-1.0f, 1.0f, 1.0f, -1.0f, -10.0f, 10.0f);
+            camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        }
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
         
@@ -530,7 +535,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             camera->UpdateViewProjectionMatrix();
         } else if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
             Vector2 delta = mouse_delta;
-			camera->Move(Vector3(-delta.x, delta.y, camera->center.z) * 0.01f); // move camera in x and y direction based on mouse movement
+			camera->Move(Vector3(-delta.x, delta.y, 0) * 0.01f); // move camera in x and y direction based on mouse movement
 			camera->UpdateViewProjectionMatrix();
         }
     }
@@ -538,28 +543,44 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
 
 void Application::OnWheel(SDL_MouseWheelEvent event)
 {
-	float dy = event.preciseY;
+    if (camPerspective) {
+        float dy = event.preciseY;
 
-    if (dy > 0) {  // up -> zoom in
-		Vector3 temp = camera->center - camera->eye;
-		temp = temp * 0.1f; // move 10% of the distance between eye and center
-		currProperty temp2 = camProp;
-        camProp = CAM_FAR;
-        changeCameraProp(-temp.Length());
-        camProp = temp2;
-		camera->eye = camera->eye + temp;
-        camera->UpdateViewMatrix();
-        camera->UpdateViewProjectionMatrix();
-	} else if (dy < 0) {  // down -> zoom out
-        Vector3 temp = camera->eye - camera->center;
-        temp = temp * 0.1f; // move 10% of the distance between eye and center
-        currProperty temp2 = camProp;
-        camProp = CAM_FAR;
-        changeCameraProp(temp.Length());
-		camProp = temp2;
-        camera->eye = camera->eye + temp;
-        camera->UpdateViewMatrix();
-        camera->UpdateViewProjectionMatrix();
+        if (dy > 0) {  // up -> zoom in
+            Vector3 temp = camera->center - camera->eye;
+            temp = temp * 0.1f; // move 10% of the distance between eye and center
+            currProperty temp2 = camProp;
+            camProp = CAM_FAR;
+            changeCameraProp(-temp.Length());
+            camProp = temp2;
+            camera->eye = camera->eye + temp;
+            camera->UpdateViewMatrix();
+            camera->UpdateViewProjectionMatrix();
+        }
+        else if (dy < 0) {  // down -> zoom out
+            Vector3 temp = camera->eye - camera->center;
+            temp = temp * 0.1f; // move 10% of the distance between eye and center
+            currProperty temp2 = camProp;
+            camProp = CAM_FAR;
+            changeCameraProp(temp.Length());
+            camProp = temp2;
+            camera->eye = camera->eye + temp;
+            camera->UpdateViewMatrix();
+            camera->UpdateViewProjectionMatrix();
+        }
+    } else {
+        float dy = event.preciseY;
+
+        if (dy > 0) {  // up -> zoom in
+			camera->SetOrthographic(camera->left * 0.9f, camera->right * 0.9f, camera->top * 0.9f, camera->bottom * 0.9f, camera->near_plane, camera->far_plane);
+            camera->UpdateViewMatrix();
+            camera->UpdateViewProjectionMatrix();
+        }
+        else if (dy < 0) {  // down -> zoom out
+			camera->SetOrthographic(camera->left * 1.1f, camera->right * 1.1f, camera->top * 1.1f, camera->bottom * 1.1f, camera->near_plane, camera->far_plane);
+            camera->UpdateViewMatrix();
+            camera->UpdateViewProjectionMatrix();
+        }
     }
 }
 
