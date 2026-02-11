@@ -22,6 +22,15 @@ bool Entity::isInside(Vector3 v) {
 }
 
 void Entity::Render(Image* framebuffer, Camera* camera, FloatImage* zbuffer) {
+    if(framebuffer->wireT_trianF) {
+        if(mode == eRenderMode::TRIANGLES || mode == eRenderMode::TRIANGLES_INTERPOLATED) {
+            mode = eRenderMode::WIREFRAME;
+        }
+    } else {
+        if(mode == eRenderMode::WIREFRAME) {
+            mode = eRenderMode::TRIANGLES;
+        }
+    }
     if(framebuffer->interpolUVsT_colorF) {
         if(mode == eRenderMode::TRIANGLES) {
             mode = eRenderMode::TRIANGLES_INTERPOLATED;

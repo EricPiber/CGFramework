@@ -57,6 +57,7 @@ public:
     bool meshT_colorF = true;
     bool occlusions = true;
     bool interpolUVsT_colorF = true;
+    bool wireT_trianF = true;
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel
 

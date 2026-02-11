@@ -313,6 +313,7 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
             case SDLK_t: framebuffer.meshT_colorF = !framebuffer.meshT_colorF; break;
             case SDLK_z: framebuffer.occlusions = !framebuffer.occlusions; break;
             case SDLK_c: framebuffer.interpolUVsT_colorF = !framebuffer.interpolUVsT_colorF; break;
+            case SDLK_w: framebuffer.wireT_trianF = !framebuffer.wireT_trianF; break;
             default: break;
         }
     }
