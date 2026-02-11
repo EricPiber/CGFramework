@@ -120,8 +120,8 @@ void Application::Init(void)
         entity4 = new Entity(mesh1, model_matrix4, texture1, eRenderMode::TRIANGLES_INTERPOLATED, 4);
         
         camera = new Camera();
-        // for perspective projection:
         if(camPerspective) {
+            // for perspective projection:
             camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
             camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         }
@@ -132,10 +132,6 @@ void Application::Init(void)
         }
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
-        
-        
-        //camera->SetPerspective(60*DEG2RAD, (float)window_width/(float)window_height, -1, 1);
-        
     }
     framebuffer.Fill(Color::BLACK);
     

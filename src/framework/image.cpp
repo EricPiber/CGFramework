@@ -627,7 +627,6 @@ void Image::SetPixelInterpolated(const Vector2& p, const Vector2& p0, const Vect
     Vector3 abg = GetABG(p, p0, p1, p2);
     
     Color c = (abg.x*c0) + (abg.y*c1) + (abg.z*c2);
-    //Vector2 p_screen = GetScreenCoordinates(Vector3(p.x, p.y, 0));
     SetPixel(p.x, p.y, c);
 }
 
@@ -698,7 +697,6 @@ void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     Vector2 s2 = GetScreenCoordinates(triangle.p2);
     
     Vector2 s[3] = {s0, s1, s2};
-    //Color c[3] = {triangle.c0, triangle.c1, triangle.c2};
     Color cPlain;
     
     if(!interpolUVsT_colorF) {
