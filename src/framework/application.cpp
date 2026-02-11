@@ -506,17 +506,19 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             Vector2 d = mouse_delta;
             float speed = 0.005f;
 
-            // Vector from object to camera
-            Vector3 v = camera->eye - camera->center;
-            float r = v.Length();
+            Vector3 v = camera->eye - camera->center;  // Vector from object to camera
+			float r = v.Length();  // radius of the sphere on which the camera moves around the center
 
-            float yaw = atan2f(v.x, v.z);
-            float pitch = asinf(v.y / r);
+			// transform from Cartesian to spherical camera's coordinates to get the angles of rotation around the center
+			float yaw = atan2f(v.x, v.z);  // 2 * arctan(v.x / v.z) gives the angle of rotation around the y-axis, giving correct quadrants and avoids division by zero
+			float pitch = asinf(v.y / r);  // arcsin(v.y / r) gives the angle of rotation around the x-axis, giving correct quadrants and avoids division by zero
 
+			// modify angles based on mouse movement and speed, then transform back to Cartesian coordinates to get the new camera position
             yaw += d.x * speed;
             pitch -= d.y * speed;
-            pitch = clamp(pitch, -1.55f, 1.55f); // avoid flip
+			pitch = clamp(pitch, -1.55f, 1.55f); // avoid flip of camera when pitch goes beyond vertical (90 degrees up or down)
 
+			// convert back to Cartesian coordinates to get new camera position, keeping the same radius from the center
             camera->eye = camera->center + Vector3(
                 r * cosf(pitch) * sinf(yaw),
                 r * sinf(pitch),
@@ -524,15 +526,8 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             );
 
             camera->up = Vector3(0, 1, 0);
-            camera->LookAt(camera->eye, camera->center, camera->up);
+            camera->LookAt(camera->eye, camera->center, camera->up); // update center and up vectors based on new eye position
             camera->UpdateViewProjectionMatrix();
-
-            /*
-            Vector2 delta = mouse_delta;
-			camera->eye = camera->eye + Vector3(delta.x, -delta.y, 0) * 0.01; // move camera in x and y direction based on mouse movement
-			camera->LookAt(camera->eye, camera->center, camera->up); // update center and up vectors based on new eye position
-			camera->UpdateViewProjectionMatrix();
-            */
         } else if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
             Vector2 delta = mouse_delta;
 			camera->Move(Vector3(-delta.x, delta.y, camera->center.z) * 0.01f); // move camera in x and y direction based on mouse movement
