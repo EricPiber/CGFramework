@@ -106,7 +106,7 @@ void Camera::UpdateViewMatrix()
           0, 0, 1, -eye.z,
           0, 0, 0, 1
           );
-    view_matrix = Rt * T;
+    view_matrix = Rt * T;  // inverse of the camera to world matrix
     
 	UpdateViewProjectionMatrix();
 }
@@ -123,7 +123,7 @@ void Camera::UpdateProjectionMatrix()
 	// Remember how to fill a Matrix4x4 (check framework slides)
 	
     
-	if (type == PERSPECTIVE) {
+	if (type == PERSPECTIVE) {  // Create the projection matrix for perspective projection
 		projection_matrix.Set(
 			1.0f/(aspect*tanf(DEG2RAD*fov/2.0f)), 0, 0, 0,
 			0, 1.0f/tanf(DEG2RAD*fov/2.0f), 0, 0,
@@ -131,7 +131,7 @@ void Camera::UpdateProjectionMatrix()
 			0, 0, -1.0f, 0
 		);
 	}
-	else if (type == ORTHOGRAPHIC) {
+	else if (type == ORTHOGRAPHIC) {  // Create the projection matrix for orthographic projection
 		projection_matrix.Set(
 			2.0f/(right-left), 0, 0, -(right+left)/(right-left),
 			0, 2.0f/(top-bottom), 0, -(top+bottom)/(top-bottom),
@@ -181,7 +181,7 @@ void Camera::SetExampleProjectionMatrix()
 	glMatrixMode(GL_MODELVIEW);
 }
 
-Matrix44 Camera::GetFRUMatix() {
+Matrix44 Camera::GetFRUMatix() {  // Get the rotation matrix of the camera to world transformation
     Vector3 forward = Vector3();
     Vector3 right = Vector3();
     Vector3 local_up = Vector3();

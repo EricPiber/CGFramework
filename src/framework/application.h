@@ -179,9 +179,9 @@ public:
     Entity *entity4;
     Camera *camera;
     
-    bool entities_initialized = false;
-	currProperty camProp;
-    bool camPerspective = false;
+    bool entities_initialized = false;  // to render animation
+	currProperty camProp;  // to know which camera property we are changing with +/-
+	bool camPerspective = false;  // what projection mode do we start with
     
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);
@@ -204,7 +204,7 @@ public:
 		this->window_width = width;
 		this->window_height = height;
 		this->framebuffer.Resize(width, height);
-        camera->SetAspectRatio((float)width / (float)height);
+        camera->SetAspectRatio((float)width / (float)height);  // change for perspective projection
 
         // ratios of pixel change
         float sx = (float)width / old_w;

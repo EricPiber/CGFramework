@@ -167,7 +167,7 @@ void Application::Render(void)
         butPink.DrawButton(framebuffer);
     } else if (lab == 2) {
         zbuffer->Fill(10000.0f);
-        if (entities_initialized) {
+        if (entities_initialized) {  // for animations and several objects rendered
             makeAction(CLEAR);
             entity1->Render(&framebuffer, camera, zbuffer);
             entity2->Render(&framebuffer, camera, zbuffer);
@@ -275,10 +275,11 @@ void Application::paint() {
 }
 
 void Application::changeCameraProp(float d) {
+	// negative direction -> towards the camera, positive direction -> away from the camera (for near and far planes), increase FOV for positive direction and decrease for negative direction
     if (camProp == CAM_NEAR) {
-        camera->near_plane = fmin(camera->far_plane - 0.1f, camera->near_plane + d);
+		camera->near_plane = fmin(camera->far_plane - 0.1f, camera->near_plane + d);  // to avoid near plane being bigger than far plane
     } else if (camProp == CAM_FAR) {
-        camera->far_plane = fmax(camera->near_plane + 0.1f, camera->far_plane + d);
+		camera->far_plane = fmax(camera->near_plane + 0.1f, camera->far_plane + d);  // to avoid far plane being smaller than near plane
     } else if (camProp == CAM_FOV) {
         camera->fov = clamp(camera->fov + (d*50), 5.0f, 170.0f);  // limit FOV to interval [5, 170] to avoid incorrect/weird projections
     }
@@ -503,7 +504,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             }
         }
     } else if (lab == 2) {
-        if(mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+		if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {  // orbit camera around center of the scene
             Vector2 d = mouse_delta;
             float speed = 0.005f;
 
@@ -529,7 +530,8 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
             camera->up = Vector3(0, 1, 0);
             camera->LookAt(camera->eye, camera->center, camera->up); // update center and up vectors based on new eye position
             camera->UpdateViewProjectionMatrix();
-        } else if(mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+		}
+		else if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {  // change camera's center based on mouse movement
             Vector2 delta = mouse_delta;
 			camera->Move(Vector3(-delta.x, delta.y, 0) * 0.01f); // move camera in x and y direction based on mouse movement
 			camera->UpdateViewProjectionMatrix();

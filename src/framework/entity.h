@@ -18,7 +18,7 @@ public:
     int animationId;
     Image* texture;
     eRenderMode mode;
-    float animation_time = 0.0f;
+	float animation_time = 0.0f;  // total time since the start of the animation
     
     Entity();
     Entity(Mesh *mesh, Matrix44 *model_matrix, Image* texture, eRenderMode mode, int id = 0);

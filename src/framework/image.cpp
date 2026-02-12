@@ -525,7 +525,7 @@ int* Image::CompRect(Vector2 v1, Vector2 v2) {
 }
 
 Vector2 Image::GetTextureCoordinates(Vector2 v) {
-    return Vector2(v.x*width, v.y*height);
+	return Vector2(v.x * width, v.y * height);  // scale 0-1 to 0-width/height
 }
 
 Vector2 Image::GetScreenCoordinates(Vector3 v) {
@@ -566,10 +566,10 @@ Vector3 Image::GetABG(const Vector2& p, const Vector2& p0, const Vector2& p1, co
 }
 
 Color Image::GetPlainColor(const sTriangleInfo& triangle) {
-    float alpha = 1.0/3.0;
+    float alpha = 1.0/3.0;  // equal area for each vertex
     Color c;
 
-    if(meshT_colorF) {
+    if(meshT_colorF) {  // if use texture is true
         Vector2 text0 = triangle.texture->GetTextureCoordinates(triangle.uv0);
         Vector2 text1 = triangle.texture->GetTextureCoordinates(triangle.uv1);
         Vector2 text2 = triangle.texture->GetTextureCoordinates(triangle.uv2);
@@ -578,7 +578,7 @@ Color Image::GetPlainColor(const sTriangleInfo& triangle) {
         text1 *= alpha;
         text2 *= alpha;
         
-        Vector2 uv = text0 + text1 + text2;
+		Vector2 uv = text0 + text1 + text2;  // get the average uv coordinate for the triangle
         
         c = triangle.texture->GetPixel(uv.x, uv.y);
     } else {
@@ -615,7 +615,7 @@ bool Image::SetZInterpolated(const Vector2& p, const Vector3& p0, const Vector3&
     
     float pz = (abg.x*p0.z) + (abg.y*p1.z) + (abg.z*p2.z);
     
-    if(zbuffer->GetPixel(p.x, p.y) > pz) {
+	if (zbuffer->GetPixel(p.x, p.y) > pz) {  // update zbuffer only if the new z value is closer to camera
         zbuffer->SetPixel(p.x, p.y, pz);
         return true;
     } else {
@@ -645,12 +645,12 @@ void Image::DrawTriangleInterpolated(const sTriangleInfo& triangle, FloatImage* 
     ScanLineDDA(s1.x, s1.y, s2.x, s2.y, table);
     
     for(int i=0; i<tableSize; i++) {
-        if(table[i].minx != -1) {
+		if (table[i].minx != -1) {  // skip empty columns
             for(int j=table[i].minx; j<=table[i].maxx; j++) {
                 if((0 < j) && (j < width) && (0 < i) && (i < height)) {
-                    Vector2 s = Vector2(j, i);
-                    if((!occlusions) || SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
-                        if(meshT_colorF) {
+					Vector2 s = Vector2(j, i);  // screen coordinates of pixel to be filled
+					if ((!occlusions) || SetZInterpolated(s, triangle.p0, triangle.p1, triangle.p2, zbuffer)) { // if occlusions are not taken into account or the pixel is visible with occlusions
+						if (meshT_colorF) {  // distinguish between using texture or not
                             SetUVInterpolated(s, s0, s1, s2, triangle.texture, triangle.uv0, triangle.uv1, triangle.uv2);
                         } else {
                             SetPixelInterpolated(s, s0, s1, s2, triangle.c0, triangle.c1, triangle.c2);
@@ -675,7 +675,7 @@ void Image::DrawPointcloud(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     if(!interpolUVsT_colorF) {
         cPlain = GetPlainColor(triangle);
     }
-    
+	// similar to DrawTriangleInterpolated but only for the vertices of the triangle
     for(int i=0; i<3; i++) {
         if((!occlusions) || SetZInterpolated(s[i], triangle.p0, triangle.p1, triangle.p2, zbuffer)) {
             if(interpolUVsT_colorF) {
@@ -703,6 +703,7 @@ void Image::DrawWireframe(const sTriangleInfo& triangle, FloatImage* zbuffer) {
         cPlain = GetPlainColor(triangle);
     }
     
+	// similar to DrawTriangleInterpolated but only for the edges of the triangle
     for(int i=0; i<3; i++) {
         int j = i+1;
         if(j==3) {j=0;}
@@ -746,6 +747,7 @@ void Image::DrawTriangles(const sTriangleInfo& triangle, FloatImage* zbuffer) {
     ScanLineDDA(s0.x, s0.y, s2.x, s2.y, table);
     ScanLineDDA(s1.x, s1.y, s2.x, s2.y, table);
     
+	// filling triangle with the computed color
     for(int i=0; i<tableSize; i++) {
         if(table[i].minx != -1) {
             for(int j=table[i].minx; j<=table[i].maxx; j++) {

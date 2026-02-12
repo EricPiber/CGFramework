@@ -54,10 +54,9 @@ public:
     bool isFilled = false;
     Color defColor = Color::WHITE;
     
-    bool meshT_colorF = true;
-    bool occlusions = true;
-    bool interpolUVsT_colorF = true;
-    bool wireT_trianF = true;
+	bool meshT_colorF = true;  // texture -> true, color -> false
+	bool occlusions = true;  // if occlusions is true, zbuffer is used
+	bool wireT_trianF = true;  // wireframe (edges) -> true, triangle (full) -> false
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel
 
