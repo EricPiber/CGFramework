@@ -56,6 +56,7 @@ public:
     
 	bool meshT_colorF = true;  // texture -> true, color -> false
 	bool occlusions = true;  // if occlusions is true, zbuffer is used
+    bool interpolUVsT_colorF = true; // interpolation -> true, plain color -> false
 	bool wireT_trianF = true;  // wireframe (edges) -> true, triangle (full) -> false
     
 	unsigned int bytes_per_pixel = 3; // Bits per pixel

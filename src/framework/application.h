@@ -181,7 +181,7 @@ public:
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-
-	bool camPerspective = false;  // what projection mode do we start with
+	bool camPerspective = true;  // what projection mode do we start with
     
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);
