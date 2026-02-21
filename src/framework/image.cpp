@@ -354,7 +354,7 @@ void Image::DrawLineDDA(int x0, int y0, int x1, int y1, const Color& c) {
     Vector2 v0(x0, y0);
     Vector2 v(dx/d, dy/d);
     
-    for(int i=0; i<d; i++) {
+    for(int i=0; i<=d; i++) {
         for(int j=-defBorderWidth; j<=defBorderWidth;j++){
             for(int k=-defBorderWidth; k<=defBorderWidth;k++) {
                 SetPixel(v0.x+j, v0.y+k, c);
