@@ -132,6 +132,13 @@ void Application::Init(void)
         }
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
+    } else if (lab == 3) {
+        camera = new Camera();
+        mesh = new Mesh();
+        shader = new Shader();
+        mesh->CreateQuad();
+        shader = Shader::Get("shaders/quad.vs", "shaders/quad.fs");
+        task = 5;
     }
     framebuffer.Fill(Color::BLACK);
     
@@ -165,6 +172,7 @@ void Application::Render(void)
         butYellow.DrawButton(framebuffer);
         butCyan.DrawButton(framebuffer);
         butPink.DrawButton(framebuffer);
+        framebuffer.Render();
     } else if (lab == 2) {
         zbuffer->Fill(10000.0f);
         if (entities_initialized) {  // for animations and several objects rendered
@@ -177,8 +185,15 @@ void Application::Render(void)
             makeAction(CLEAR);
             entity0->Render(&framebuffer, camera, zbuffer);
         }
+        framebuffer.Render();
+    } else if (lab == 3) {
+        shader->Enable();
+        shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
+        shader->SetInt("u_task", task);
+        shader->SetFloat("u_pi", PI);
+        mesh->Render();
+        shader->Disable();
     }
-    framebuffer.Render();
 }
 
 // Called after render

@@ -9,6 +9,7 @@
 #include "image.h"
 #include "entity.h"
 #include "camera.h"
+#include "shader.h"
 
 enum Action {
     CLEAR,
@@ -87,7 +88,7 @@ class Application
 {
 public:
 
-    int lab = 2;
+    int lab = 3;
     
     // Window
 
@@ -178,6 +179,10 @@ public:
     Entity *entity3;
     Entity *entity4;
     Camera *camera;
+    
+    Mesh *mesh;
+    Shader *shader;
+    int task;
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-
