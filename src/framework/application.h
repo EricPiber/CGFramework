@@ -182,7 +182,9 @@ public:
     
     Mesh *mesh;
     Shader *shader;
+    Texture *texture;
     int task;
+    int exercise;
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-
