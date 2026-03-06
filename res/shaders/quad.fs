@@ -2,6 +2,8 @@ uniform vec2 u_resolution;
 uniform int u_task;
 uniform int u_exercise;
 uniform float u_pi;
+uniform float u_aspect;
+uniform float u_time;
 uniform sampler2D u_texture;
 
 varying vec2 v_uv;
@@ -19,12 +21,12 @@ void main()
     vec3 white = vec3(1);
     
     if(u_exercise == 0) {
-        uv.x *= (u_resolution.x/u_resolution.y);
+        uv.x *= u_aspect;
         if(u_task == 0) {
-            color = mix(b, r, uv.x);
+            color = mix(b, r, uv.x/u_aspect);
         } else if (u_task == 1) {
             
-            vec2 center = vec2(0.5, 0.5);
+            vec2 center = vec2(0.5*u_aspect, 0.5);
             vec3 gray = vec3(211.0/255.0);
             float rad = distance(center, uv)*2.0;
             
@@ -46,6 +48,7 @@ void main()
             float remain_x = mod(uv.x, sq_size);
             float remain_y = mod(uv.y, sq_size);
             vec2 sq_uv = vec2(uv.x - remain_x, uv.y - remain_y);
+            sq_uv.x /= u_aspect;
             
             color = vec3(sq_uv, 0.0);
             
@@ -152,20 +155,48 @@ void main()
             r2_c1.xyz + r2_c2.xyz + r2_c3.xyz + r2_c4.xyz + r2_c5.xyz +
             r1_c1.xyz + r1_c2.xyz + r1_c3.xyz + r1_c4.xyz + r1_c5.xyz
             ) / 25.0;
-
-                /*vec4 bot_left = texture2D(u_texture, uv-texel);
-                vec4 bot_cent = texture2D(u_texture, vec2(uv.x, uv.y-texel.y));
-                vec4 bot_right = texture2D(u_texture, vec2(uv.x+texel.x, uv.y-texel.y));
-                vec4 cen_left = texture2D(u_texture, vec2(uv.x-texel.x, uv.y));
-                vec4 cen_right = texture2D(u_texture, vec2(uv.x+texel.x, uv.y));
-                vec4 top_left = texture2D(u_texture, vec2(uv.x-texel.x, uv.y+texel.y));
-                vec4 top_cent = texture2D(u_texture, vec2(uv.x, uv.y+texel.y));
-                vec4 top_right = texture2D(u_texture, uv+texel);
-                color4.xyz =
-                (top_left.xyz   +   top_cent.xyz    +   top_right.xyz +
-                cen_left.xyz    +   color4.xyz      +   cen_right.xyz +
-                bot_left.xyz    +   bot_cent.xyz    +   bot_right.xyz)/9.0;*/
         }
+    } else if (u_exercise == 2) {
+        
+        if (u_task == 0) {
+            // ROTATE
+            uv.x *= u_aspect;       // avoid deformation when rotating
+            vec2 center = vec2(0.5*u_aspect, 0.5);
+            vec2 horizontal = vec2(1.0, 0.0);       // to compute phi
+
+            float rad = distance(uv, center);
+            float phi = acos(dot(normalize(uv-center),horizontal));     // angle w.r.t. horizontal
+            // since cos() outputs the same values for angles 0-pi and for pi-2pi
+            // the following deals with angles for pi-2pi:
+            phi = phi*step(center.y, uv.y) - phi*(1.0-step(center.y, uv.y));
+            
+            uv.x = center.x + rad*cos(-(u_pi/8.0)*u_time + phi);
+            uv.y = center.y + rad*sin(-(u_pi/8.0)*u_time + phi);
+            // note that ang. freq. < 0, since uvs "rotate" in the opposite way than the image
+            uv.x /= u_aspect;       // restoring uv.x value, after computation, for proper sampling
+            // borders of the image will be the same image:
+            uv.x = mod(uv.x, 1.0);
+            uv.y = mod(uv.y, 1.0);
+
+        } else if (u_task == 1) {
+            // PIXELIZATION
+            uv.x *= u_aspect;       // stretching uv.x, for computations
+            float param = cos((u_pi/8.0)*u_time);   // now param goes between -1 and 1
+            param += 1.0; // between 0 and 2
+            param /= 2.0; // between 0 and 1, so it can be used to compute the size of the pixels
+            
+            // apply more or less the same as in task=3, exercise=0
+            float n_sq_min = 9.0;
+            float sq_size = 1.0/n_sq_min;
+            sq_size *= param;           // animate the size (increase and decrease with time)
+            vec2 remain = vec2(mod(uv.x, sq_size), mod(uv.y, sq_size));
+            uv -= remain;
+            uv.x /= u_aspect;       // squeezing it back, to proper display
+            
+        }
+        
+        color4 = texture2D(u_texture, uv);
+        
     }
     
     gl_FragColor = vec4(color4);

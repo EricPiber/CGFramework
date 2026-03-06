@@ -139,8 +139,8 @@ void Application::Init(void)
         mesh->CreateQuad();
         shader = Shader::Get("shaders/quad.vs", "shaders/quad.fs");
         texture = Texture::Get("images/fruits.png");
-        task = 5;
-        exercise = 1;
+        task = 1;
+        exercise = 2;
     }
     framebuffer.Fill(Color::BLACK);
     
@@ -193,8 +193,10 @@ void Application::Render(void)
         shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
         shader->SetInt("u_task", task);
         shader->SetFloat("u_pi", PI);
+        shader->SetFloat("u_aspect", (float)window_width/(float)window_height);
         shader->SetInt("u_exercise", exercise);
         shader->SetTexture("u_texture", texture);
+        shader->SetFloat("u_time", time);
         mesh->Render();
         shader->Disable();
     }
