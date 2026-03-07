@@ -215,6 +215,13 @@ public:
 		this->framebuffer.Resize(width, height);
         camera->SetAspectRatio((float)width / (float)height);  // change for perspective projection
 
+		// if camera was in perspective, we just need to update the projection matrix with the new aspect ratio
+        if (camPerspective) {
+            camera->UpdateProjectionMatrix();
+            camera->UpdateViewProjectionMatrix();
+            return;
+		}
+
         // ratios of pixel change
         float sx = (float)width / old_w;
         float sy = (float)height / old_h;
