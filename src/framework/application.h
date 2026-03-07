@@ -167,7 +167,7 @@ public:
 	Button butCyan;
 	Button butPink;
     
-    Matrix44* model_matrix0;
+    Matrix44 *model_matrix0;
 	Matrix44 *model_matrix1;
     Matrix44 *model_matrix2;
     Matrix44 *model_matrix3;
@@ -185,6 +185,8 @@ public:
     Texture *texture;
     int task;
     int exercise;
+    bool lab4T_lab5F = true;
+    Entity *entity;
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-

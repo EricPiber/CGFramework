@@ -13,6 +13,15 @@ Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, Image* texture, eRenderMode m
     this->texture = texture;
     this->mode = mode;
     this->animationId = id;
+    shad = NULL;
+    text = NULL;
+}
+
+Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, Shader *shad, Texture *text) {
+    this->mesh = mesh;
+    this->model_matrix = model_matrix;
+    this->shad = shad;
+    this->text = text;
 }
 
 bool Entity::isInside(Vector3 v) {  // triangle inside the clip space if all its vertices are inside the cube defined by x,y,z in [-1, 1]
@@ -131,4 +140,13 @@ void Entity::Update(float dt) {
         
         *model_matrix = *model_matrix * mRot * mScale;
     }
+}
+
+void Entity::Render(Camera* camera) {
+    shad->Enable();
+    shad->SetMatrix44("u_model", *model_matrix);
+    shad->SetMatrix44("u_viewprojection", camera->viewprojection_matrix);
+    shad->SetTexture("u_texture", text);
+    mesh->Render();
+    shad->Disable();
 }

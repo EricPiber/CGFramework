@@ -68,6 +68,7 @@ void Application::Init(void)
         butYellow = Button(yellow, 530, 10, YELLOW);
         butCyan = Button(cyan, 570, 10, CYAN);
         butPink = Button(pink, 610, 10, PINK);
+        framebuffer.Fill(Color::BLACK);
     } else if (lab == 2) {
         
         Mesh *mesh1 = new Mesh();
@@ -132,17 +133,49 @@ void Application::Init(void)
         }
         
         zbuffer = new FloatImage(framebuffer.width, framebuffer.height);
+        framebuffer.Fill(Color::BLACK);
     } else if (lab == 3) {
         camera = new Camera();
+        if(camPerspective) {
+            // for perspective projection:
+            camera->SetPerspective(60.0f, (float)window_width / (float)window_height, 0.5f, 3.0f);
+            camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        }
+        else {
+            // for orthographic projection:
+            camera->SetOrthographic(-1.0f, 1.0f, 1.0f, -1.0f, -10.0f, 10.0f);
+            camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+        }
+        
         mesh = new Mesh();
         shader = new Shader();
         mesh->CreateQuad();
         shader = Shader::Get("shaders/quad.vs", "shaders/quad.fs");
         texture = Texture::Get("images/fruits.png");
-        task = 1;
-        exercise = 2;
+        
+        Mesh *mesh0 = new Mesh();
+        mesh0->LoadOBJ("meshes/lee.obj");
+        Shader *shad = new Shader();
+        shad = Shader::Get("shaders/raster.vs", "shaders/raster.fs");
+        Texture *text = new Texture();
+        text = Texture::Get("textures/lee_color_specular.tga");
+        
+        Matrix44 *model_matrix = new Matrix44();
+        
+        Matrix44 mTrans = Matrix44();
+        mTrans.MakeTranslationMatrix(0, -0.2, 0);
+
+        Matrix44 mScale = Matrix44();
+        mScale.MakeScaleMatrix(2.0f, 2.0f, 2.0f);
+        
+        *model_matrix = mTrans * mScale;
+        
+        entity = new Entity(mesh0, model_matrix, shad, text);
+        
+        glEnable(GL_DEPTH_TEST);
+
     }
-    framebuffer.Fill(Color::BLACK);
+    
     
 }
 
@@ -189,16 +222,20 @@ void Application::Render(void)
         }
         framebuffer.Render();
     } else if (lab == 3) {
-        shader->Enable();
-        shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
-        shader->SetInt("u_task", task);
-        shader->SetFloat("u_pi", PI);
-        shader->SetFloat("u_aspect", (float)window_width/(float)window_height);
-        shader->SetInt("u_exercise", exercise);
-        shader->SetTexture("u_texture", texture);
-        shader->SetFloat("u_time", time);
-        mesh->Render();
-        shader->Disable();
+        if (exercise == 3) {
+            entity->Render(camera);
+        } else {
+            shader->Enable();
+            shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
+            shader->SetInt("u_task", task);
+            shader->SetFloat("u_pi", PI);
+            shader->SetFloat("u_aspect", (float)window_width/(float)window_height);
+            shader->SetInt("u_exercise", exercise);
+            shader->SetTexture("u_texture", texture);
+            shader->SetFloat("u_time", time);
+            mesh->Render();
+            shader->Disable();
+        }
     }
 }
 
@@ -337,6 +374,22 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
             case SDLK_z: framebuffer.occlusions = !framebuffer.occlusions; break;
             case SDLK_c: framebuffer.interpolUVsT_colorF = !framebuffer.interpolUVsT_colorF; break;
             case SDLK_w: framebuffer.wireT_trianF = !framebuffer.wireT_trianF; break;
+            default: break;
+        }
+    } else if (lab == 3) {
+        switch(event.keysym.sym) {
+            case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
+            case SDLK_1: exercise = 0; break;
+            case SDLK_2: exercise = 1; break;
+            case SDLK_3: exercise = 2; break;
+            case SDLK_4: exercise = 3; break;
+            case SDLK_a: task = 0; break;
+            case SDLK_b: task = 1; break;
+            case SDLK_c: task = 2; break;
+            case SDLK_d: task = 3; break;
+            case SDLK_e: task = 4; break;
+            case SDLK_f: task = 5; break;
+            case SDLK_l: lab4T_lab5F = !lab4T_lab5F; break;
             default: break;
         }
     }
