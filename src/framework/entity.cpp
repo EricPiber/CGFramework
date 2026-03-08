@@ -150,3 +150,12 @@ void Entity::Render(Camera* camera) {
     mesh->Render();
     shad->Disable();
 }
+
+void Entity::Render(sUniformData& uniformData) {
+    uniformData.material->Enable();
+    shad->SetMatrix44("u_model", uniformData.entity->model_matrix);
+    shad->SetMatrix44("u_viewprojection", uniformData.camera->viewprojection_matrix);
+    shad->SetTexture("u_texture", text);
+    mesh->Render();
+    uniformData.Material->Disable();
+}

@@ -33,4 +33,5 @@ public:
     void Update(float dt);
     
     void Render(Camera* camera);
+	void Render(sUniformData& uniformData);
 };
