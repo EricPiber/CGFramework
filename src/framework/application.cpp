@@ -519,7 +519,7 @@ void Application::OnMouseButtonUp( SDL_MouseButtonEvent event )
     }
 }
 
-void Application::OnMouseMove(SDL_MouseButtonEvent event)
+void Application::OnMouseMove(SDL_MouseMotionEvent event)
 {
     if(lab == 1) {
         if(currTool == PENCIL) {
@@ -595,7 +595,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
         }
     } else if ((lab == 2) || ((lab == 3) && (exercise == 3))) {
 		if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {  // orbit camera around center of the scene
-            Vector2 d = mouse_delta;
+            Vector2 d = Vector2(event.xrel, event.yrel);
             float speed = 0.005f;
 
             Vector3 v = camera->eye - camera->center;  // Vector from object to camera
@@ -619,10 +619,11 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
 
             camera->up = Vector3(0, 1, 0);
             camera->LookAt(camera->eye, camera->center, camera->up); // update center and up vectors based on new eye position
+			camera->UpdateViewMatrix();
             camera->UpdateViewProjectionMatrix();
 		}
 		else if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) {  // change camera's center based on mouse movement
-            Vector2 delta = mouse_delta;
+            Vector2 delta = Vector2(-event.xrel * 0.5, -event.yrel * 0.5);
 			camera->Move(Vector3(-delta.x, delta.y, 0) * 0.01f); // move camera in x and y direction based on mouse movement
 			camera->UpdateViewProjectionMatrix();
         }
