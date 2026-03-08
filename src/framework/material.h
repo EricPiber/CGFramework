@@ -10,14 +10,26 @@ class Material;
 
 struct sLight {
 	Vector3 position;
-	float intensity;
+	Vector3 intensity;
 };
 
 struct sUniformData {
+    // entity
     Matrix44 *model_matrix;
+    
+    // camera
 	Matrix44 vp_matrix;
-	float amb_light_intensity;
-	// scene light, etc
+    Vector3 cam_eye;
+    
+    // lights
+	Vector3 Ia;
+    int nLights;
+    sLight lights[6];
+    
+    // interactivity
+    bool ct;
+    bool st;
+    bool nt;
 };
 
 class Material
@@ -25,6 +37,7 @@ class Material
 public:
     Shader *shader;
     Texture *texture;
+    Texture *normal_texture;
     Vector3 *ka;
     Vector3 *kd;
     Vector3 *ks;
@@ -32,6 +45,7 @@ public:
 
     Material();
     Material(Shader *shader, Texture *texture, Vector3 *ka, Vector3 *kd, Vector3 *ks, float shininess);
+    Material(Shader *shader, Texture *texture, Texture *normal_texture, Vector3 *ka, Vector3 *kd, Vector3 *ks, float shininess);
     
     void Enable();
 	void Enable(const sUniformData& uniformData);

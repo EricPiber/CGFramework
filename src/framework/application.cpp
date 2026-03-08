@@ -147,6 +147,7 @@ void Application::Init(void)
             camera->LookAt(Vector3(0.0f, 0.5f, 1.5f), Vector3(0.0f, 0.2f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
         }
         
+        // LAB4
         mesh = new Mesh();
         shader = new Shader();
         mesh->CreateQuad();
@@ -172,16 +173,47 @@ void Application::Init(void)
         
         entityLab4 = new Entity(mesh0, model_matrix, shad, text);
         
-        Vector3 *ka = new Vector3(0.1, 0.1, 0.1);
-        Vector3 *kd = new Vector3(0.7, 0.5, 0.3);
-        Vector3 *ks = new Vector3(0.8, 0.8, 0.8);
+        // LAB5
+        Vector3 *ka = new Vector3(0.18f, 0.14f, 0.12f);
+        Vector3 *kd = new Vector3(0.55f, 0.40f, 0.30f);
+        Vector3 *ks = new Vector3(0.8f);
+        float shininess = 50.0;
+        Shader *g_shader = new Shader();
+        g_shader = Shader::Get("shaders/gouraud.vs", "shaders/gouraud.fs");
+        Shader *p_shader = new Shader();
+        p_shader = Shader::Get("shaders/phong.vs", "shaders/phong.fs");
+        Texture *normal_text = new Texture();
+        normal_text = Texture::Get("textures/lee_normal.tga");
         
-        Material *material = new Material(shad, text, ka, kd, ks, 32.0);
+        Material *g_material = new Material(g_shader, text, ka, kd, ks, shininess);
+        Material *p_material = new Material(p_shader, text, normal_text, ka, kd, ks, shininess);
         
-        entityLab5 = new Entity(mesh0, model_matrix, material);
+        g_entityLab5 = new Entity(mesh0, model_matrix, g_material);
+        p_entityLab5 = new Entity(mesh0, model_matrix, p_material);
         
         uniData = new sUniformData();
-        uniData->amb_light_intensity = amb_light_intensity;
+        
+        Vector3 light_Ia = Vector3(0.15f);
+
+        Vector3 light_pos0 = Vector3(40.0f, 80.0f, 120.0f);
+        Vector3 light_I0 = Vector3(0.95f);
+        // ... pos1, I1, pos2 ...
+        lights[0] = sLight{light_pos0, light_I0};
+        /*
+        lights[1] = sLight{light_pos1, light_I1};
+        lights[2] = sLight{light_pos2, light_I2};
+        lights[3] = sLight{light_pos3, light_I3};
+        lights[4] = sLight{light_pos4, light_I4};
+        lights[5] = sLight{light_pos5, light_I5};*/
+        
+        for(int i=0; i<1; i++) {uniData->lights[i] = lights[i];}
+
+        uniData->nLights = 1;
+        
+        gourT_phonF = false;
+        color_texture = true;
+        specular_texture = true;
+        normal_texture = true;
         
         lab4T_lab5F = true;
         
@@ -250,7 +282,15 @@ void Application::Render(void)
             }
         } else {
             uniData->vp_matrix = camera->viewprojection_matrix;
-            entityLab5->Render(*uniData);
+            uniData->cam_eye = camera->eye;
+            uniData->ct = color_texture;
+            uniData->st = specular_texture;
+            uniData->nt = normal_texture;
+            if (gourT_phonF) {
+                g_entityLab5->Render(*uniData);
+            } else {
+                p_entityLab5->Render(*uniData);
+            }
         }
     }
 }
@@ -593,9 +633,9 @@ void Application::OnMouseMove(SDL_MouseMotionEvent event)
                 }
             }
         }
-    } else if ((lab == 2) || ((lab == 3) && (exercise == 3))) {
+    } else if ((lab == 2) || ((lab == 3) && (exercise == 3)) || ((lab == 3) && (!lab4T_lab5F))) {
 		if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {  // orbit camera around center of the scene
-            Vector2 d = Vector2(event.xrel, event.yrel);
+            Vector2 d = Vector2(-event.xrel, -event.yrel);
             float speed = 0.005f;
 
             Vector3 v = camera->eye - camera->center;  // Vector from object to camera

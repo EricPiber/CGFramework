@@ -187,11 +187,17 @@ public:
     int task;
     int exercise;
     bool lab4T_lab5F;
+    bool gourT_phonF;
+    bool color_texture;
+    bool specular_texture;
+    bool normal_texture;
     Entity *entityLab4;
-    Entity *entityLab5;
-    float amb_light_intensity;
+    Entity *g_entityLab5;
+    Entity *p_entityLab5;
 	Material *material;
-    sUniformData* uniData;
+    sUniformData *uniData;
+    sLight lights[6];
+    Vector3 *Ia;
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-
