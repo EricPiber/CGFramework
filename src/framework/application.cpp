@@ -170,12 +170,23 @@ void Application::Init(void)
         
         *model_matrix = mTrans * mScale;
         
-        entity = new Entity(mesh0, model_matrix, shad, text);
+        entityLab4 = new Entity(mesh0, model_matrix, shad, text);
+        
+        Vector3 *ka = new Vector3(0.1, 0.1, 0.1);
+        Vector3 *kd = new Vector3(0.7, 0.5, 0.3);
+        Vector3 *ks = new Vector3(0.8, 0.8, 0.8);
+        
+        Material *material = new Material(shad, text, ka, kd, ks, 32.0);
+        
+        entityLab5 = new Entity(mesh0, model_matrix, material);
+        
+        uniData = new sUniformData();
+        uniData->amb_light_intensity = amb_light_intensity;
+        
+        lab4T_lab5F = true;
         
         glEnable(GL_DEPTH_TEST);
-
     }
-    
     
 }
 
@@ -222,19 +233,24 @@ void Application::Render(void)
         }
         framebuffer.Render();
     } else if (lab == 3) {
-        if (exercise == 3) {
-            entity->Render(camera);
+        if (lab4T_lab5F) {
+            if (exercise == 3) {
+                entityLab4->Render(camera);
+            } else {
+                shader->Enable();
+                shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
+                shader->SetInt("u_task", task);
+                shader->SetFloat("u_aspect", (float)window_width/(float)window_height);
+                shader->SetFloat("u_pi", PI);
+                shader->SetInt("u_exercise", exercise);
+                shader->SetTexture("u_texture", texture);
+                shader->SetFloat("u_time", time);
+                mesh->Render();
+                shader->Disable();
+            }
         } else {
-            shader->Enable();
-            shader->SetVector2("u_resolution", Vector2((float)window_width,(float)window_height));
-            shader->SetInt("u_task", task);
-            shader->SetFloat("u_aspect", (float)window_width/(float)window_height);
-            shader->SetFloat("u_pi", PI);
-            shader->SetInt("u_exercise", exercise);
-            shader->SetTexture("u_texture", texture);
-            shader->SetFloat("u_time", time);
-            mesh->Render();
-            shader->Disable();
+            uniData->vp_matrix = camera->viewprojection_matrix;
+            entityLab5->Render(*uniData);
         }
     }
 }
@@ -577,7 +593,7 @@ void Application::OnMouseMove(SDL_MouseButtonEvent event)
                 }
             }
         }
-    } else if (lab == 2) {
+    } else if ((lab == 2) || ((lab == 3) && (exercise == 3))) {
 		if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) {  // orbit camera around center of the scene
             Vector2 d = mouse_delta;
             float speed = 0.005f;

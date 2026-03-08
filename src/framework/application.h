@@ -186,17 +186,16 @@ public:
     Texture *texture;
     int task;
     int exercise;
-    bool lab4T_lab5F = true;
-    Entity *entity;
+    bool lab4T_lab5F;
+    Entity *entityLab4;
+    Entity *entityLab5;
     float amb_light_intensity;
 	Material *material;
+    sUniformData* uniData;
     
     bool entities_initialized = false;  // to render animation
 	currProperty camProp;  // to know which camera property we are changing with +/-
 	bool camPerspective = true;  // what projection mode do we start with
-    sUniformData* uniData = {
-        *entity, *camera, amb_light_intensity, *material,
-    };  // to update shader uniforms
     
 	// Constructor and main methods
 	Application(const char* caption, int width, int height);

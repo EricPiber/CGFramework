@@ -24,6 +24,12 @@ Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, Shader *shad, Texture *text) 
     this->text = text;
 }
 
+Entity::Entity(Mesh *mesh, Matrix44 *model_matrix, Material *material) {
+    this->mesh = mesh;
+    this->model_matrix = model_matrix;
+    this->material = material;
+}
+
 bool Entity::isInside(Vector3 v) {  // triangle inside the clip space if all its vertices are inside the cube defined by x,y,z in [-1, 1]
     return v.x >= -1.0f && v.x <= 1.0f &&
         v.y >= -1.0f && v.y <= 1.0f &&
@@ -152,10 +158,8 @@ void Entity::Render(Camera* camera) {
 }
 
 void Entity::Render(sUniformData& uniformData) {
-    uniformData.material->Enable();
-    shad->SetMatrix44("u_model", uniformData.entity->model_matrix);
-    shad->SetMatrix44("u_viewprojection", uniformData.camera->viewprojection_matrix);
-    shad->SetTexture("u_texture", text);
+    uniformData.model_matrix = model_matrix;
+    material->Enable(uniformData);
     mesh->Render();
-    uniformData.Material->Disable();
+    material->Disable();
 }
