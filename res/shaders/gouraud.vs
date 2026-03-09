@@ -52,7 +52,7 @@ void main()
     // parameters
     vec3 L = normalize(u_m - P);
     vec3 R = reflect(-L, N);
-    float d_sq = 1.0;   // WITH THIS LOOKS TERRIBLE (since light should be nearer, and then not good result) --> pow(distance(P, u_m), 2.0);
+    float d = 1.0;   // WITH THIS LOOKS TERRIBLE (since light should be nearer, and then not good result) --> pow(distance(P, u_m), 2.0);
     
     // diffuse
     vec3 diffuse = clamp(dot(L, N), 0.0, 1.0)*u_kd;
@@ -61,7 +61,7 @@ void main()
     vec3 specular = pow(clamp(dot(R, V), 0.0, 1.0), u_shininess) * u_ks;
     
     vec3 sum = diffuse + specular;
-    sum *= (u_I/d_sq);
+    sum *= (u_I/d);
     Ip += sum;
     
     v_Ip = Ip;

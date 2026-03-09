@@ -25,11 +25,13 @@ struct sUniformData {
 	Vector3 Ia;
     int nLights;
     sLight lights[6];
+    int index;
     
     // interactivity
     bool ct;
     bool st;
     bool nt;
+    bool accumulateT_selectF;   // EXTRA
 };
 
 class Material

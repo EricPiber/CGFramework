@@ -52,9 +52,10 @@ void Material::Enable(const sUniformData& uniformData) {
     shader->SetFloat("u_shininess", shininess);
     
     // light
-    shader->SetVector3("u_Ia", uniformData.Ia);
-    shader->SetVector3("u_m", uniformData.lights[0].position);
-    shader->SetVector3("u_I", uniformData.lights[0].intensity);
+    if(uniformData.index == 0) {shader->SetVector3("u_Ia", uniformData.Ia);}
+    else {shader->SetVector3("u_Ia", Vector3(0.0f));}
+    shader->SetVector3("u_m", uniformData.lights[uniformData.index].position);
+    shader->SetVector3("u_I", uniformData.lights[uniformData.index].intensity);
     
     // interactivity
     shader->SetInt("u_ct", (int)uniformData.ct);

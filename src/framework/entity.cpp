@@ -149,6 +149,7 @@ void Entity::Update(float dt) {
 }
 
 void Entity::Render(Camera* camera) {
+    glDisable( GL_BLEND );      // avoid bug when going from lab5 to lab4
     shad->Enable();
     shad->SetMatrix44("u_model", *model_matrix);
     shad->SetMatrix44("u_viewprojection", camera->viewprojection_matrix);
@@ -159,7 +160,18 @@ void Entity::Render(Camera* camera) {
 
 void Entity::Render(sUniformData& uniformData) {
     uniformData.model_matrix = model_matrix;
-    material->Enable(uniformData);
-    mesh->Render();
+    for(uniformData.index = 0; uniformData.index < uniformData.nLights; uniformData.index++) {
+        if (uniformData.index == 0) {
+            glDisable( GL_BLEND );
+            material->Enable(uniformData);
+        } else {
+            if (uniformData.accumulateT_selectF) {  // EXTRA --> check OnKeyPressed()
+                glEnable( GL_BLEND );
+                glBlendFunc( GL_ONE, GL_ONE );
+            }
+            material->Enable(uniformData);
+        }
+        mesh->Render();
+    }
     material->Disable();
 }

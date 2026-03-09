@@ -72,8 +72,8 @@ void main()
     
     // parameters
     vec3 L = normalize(u_m - P);
-    vec3 R = reflect((-1.0)*L, N);
-    float d_sq = 1.0;   // WITH THIS LOOKS TERRIBLE (since light should be nearer, and then not good result) --> pow(distance(P, u_m), 2.0);
+    vec3 R = reflect(-L, N);
+    float d = 1.0;   // WITH THIS LOOKS TERRIBLE (since light should be nearer, and then not good result) --> pow(distance(P, u_m), 2.0);
     
     // diffuse
     vec3 diffuse = clamp(dot(L, N), 0.0, 1.0)*Kd;
@@ -82,12 +82,8 @@ void main()
     vec3 specular = pow(clamp(dot(R, V), 0.0, 1.0), u_shininess) * Ks;
     
     vec3 sum = diffuse + specular;
-    sum *= (u_I/d_sq);
+    sum *= (u_I/d);
     Ip += sum;
-    
 
-    //vec3 color = normalize(v_world_normal);
-
-	//gl_FragColor = vec4( color, 1.0);
     gl_FragColor = vec4(Ip, 1.0);
 }

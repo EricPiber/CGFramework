@@ -174,8 +174,8 @@ void Application::Init(void)
         entityLab4 = new Entity(mesh0, model_matrix, shad, text);
         
         // LAB5
-        Vector3 *ka = new Vector3(0.18f, 0.14f, 0.12f);
-        Vector3 *kd = new Vector3(0.55f, 0.40f, 0.30f);
+        Vector3 *ka = new Vector3(0.2f, 0.15f, 0.1f);
+        Vector3 *kd = new Vector3(0.5f, 0.4f, 0.3f);
         Vector3 *ks = new Vector3(0.8f);
         float shininess = 50.0;
         Shader *g_shader = new Shader();
@@ -197,18 +197,30 @@ void Application::Init(void)
 
         Vector3 light_pos0 = Vector3(40.0f, 80.0f, 120.0f);
         Vector3 light_I0 = Vector3(0.95f);
-        // ... pos1, I1, pos2 ...
+        Vector3 light_pos1 = Vector3(-40.0f, 80.0f, 40.0f);
+        Vector3 light_I1 = Vector3(0.0f, 0.0f, 1.0f);
+        Vector3 light_pos2 = Vector3(40.0f, 80.0f, -20.0f);
+        Vector3 light_I2 = Vector3(1.0f, 0.0f, 0.0f);
+        Vector3 light_pos3 = Vector3(-40.0f, 80.0f, -20.0f);
+        Vector3 light_I3 = Vector3(0.0f, 1.0f, 0.0f);
+        Vector3 light_pos4 = Vector3(0.0f, 1000.0f, 0.0f);
+        Vector3 light_I4 = Vector3(0.95f);
+        Vector3 light_pos5 = Vector3(0.0f, -1000.0f, 0.0f);
+        Vector3 light_I5 = Vector3(0.95f);
+
         lights[0] = sLight{light_pos0, light_I0};
-        /*
         lights[1] = sLight{light_pos1, light_I1};
         lights[2] = sLight{light_pos2, light_I2};
         lights[3] = sLight{light_pos3, light_I3};
         lights[4] = sLight{light_pos4, light_I4};
-        lights[5] = sLight{light_pos5, light_I5};*/
+        lights[5] = sLight{light_pos5, light_I5};
         
-        for(int i=0; i<1; i++) {uniData->lights[i] = lights[i];}
-
+        uniData->nLights = 6;
+        
+        for(int i=0; i<uniData->nLights; i++) {uniData->lights[i] = lights[i];}
+        
         uniData->nLights = 1;
+        uniData->accumulateT_selectF = true;
         
         gourT_phonF = false;
         color_texture = true;
@@ -217,7 +229,8 @@ void Application::Init(void)
         
         lab4T_lab5F = true;
         
-        glEnable(GL_DEPTH_TEST);
+        glEnable( GL_DEPTH_TEST );
+        glDepthFunc( GL_LEQUAL );
     }
     
 }
@@ -435,16 +448,24 @@ void Application::OnKeyPressed( SDL_KeyboardEvent event )
     } else if (lab == 3) {
         switch(event.keysym.sym) {
             case SDLK_ESCAPE: exit(0); break; // ESC key, kill the app
-            case SDLK_1: exercise = 0; break;
-            case SDLK_2: exercise = 1; break;
-            case SDLK_3: exercise = 2; break;
-            case SDLK_4: exercise = 3; break;
-            case SDLK_a: task = 0; break;
+            case SDLK_1: exercise = 0; uniData->nLights = 1; break;
+            case SDLK_2: exercise = 1; uniData->nLights = 2; break;
+            case SDLK_3: exercise = 2; uniData->nLights = 3; break;
+            case SDLK_4: exercise = 3; uniData->nLights = 4; break;
+            case SDLK_5: uniData->nLights = 5; break;
+            case SDLK_6: uniData->nLights = 6; break;
+            case SDLK_a: task = 0; uniData->accumulateT_selectF = !uniData->accumulateT_selectF; break;
+                // EXTRA --> toggle between accumulating lights 1, 2, ... 6 (all at the same time)
+                // or selecting just the specific light (on its own)
             case SDLK_b: task = 1; break;
-            case SDLK_c: task = 2; break;
+            case SDLK_c: task = 2; color_texture = !color_texture; break;
             case SDLK_d: task = 3; break;
             case SDLK_e: task = 4; break;
             case SDLK_f: task = 5; break;
+            case SDLK_g: gourT_phonF = true; break;
+            case SDLK_p: gourT_phonF = false; break;
+            case SDLK_s: specular_texture = !specular_texture; break;
+            case SDLK_n: normal_texture = !normal_texture; break;
             case SDLK_l: lab4T_lab5F = !lab4T_lab5F; break;
             default: break;
         }
